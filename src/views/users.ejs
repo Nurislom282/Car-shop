@@ -1,0 +1,101 @@
+<%- include('includes/header') %>
+
+  <link rel="stylesheet" type="text/css" href="/css/users.css" />
+
+  <body>
+    <div class="users-page">
+      <header class="glass-header" style="max-width:1200px;margin:24px auto;">
+        <div class="brand">
+          <img src="/img/favicon.png" width="36" height="36" alt="logo">
+          <div class="brand-text">Restaurant Admin</div>
+        </div>
+        <nav class="header-links">
+          <a href="/admin/">Home</a>
+          <a href="/admin/car/all">Cars</a>
+          <a href="/admin/user/all" class="active">Users</a>
+          <a href="/admin/logout" onclick="return confirm('Do you really want to logout?')">Logout</a>
+        </nav>
+      </header>
+
+      <main style="max-width:1200px;margin:20px auto;padding:0 20px;">
+        <% if(!member) { %>
+          <div class="glass-card" style="padding:40px;text-align:center;font-size:28px">Please login first!</div>
+          <% } else { %>
+            <div class="glass-card" style="padding:20px">
+              <h3>All Users List</h3>
+              <div class="users-grid" style="margin-top:16px">
+                <% users.forEach(function(value, index){ %>
+                  <div class="user-row" data-id="<%= value._id %>">
+                    <div class="user-index">
+                      <%= index+1 %>
+                    </div>
+                    <div class="user-name">
+                      <%= value.memberNick %>
+                    </div>
+                    <div class="user-phone">
+                      <%= value.memberPhone %>
+                    </div>
+                    <div class="user-status">
+                      <select class="spec-select member-status" id="<%= value._id %>">
+                        <option value="ACTIVE" <%=value.memberStatus==='ACTIVE' ? 'selected' :'' %>>ACTIVE</option>
+                        <option value="BLOCK" <%=value.memberStatus==='BLOCK' ? 'selected' :'' %>>BLOCK</option>
+                        <option value="DELETE" <%=value.memberStatus==='DELETE' ? 'selected' :'' %>>DELETE</option>
+                      </select>
+                    </div>
+                  </div>
+                  <% }) %>
+              </div>
+            </div>
+            <% } %>
+      </main>
+
+      <style>
+        .glass-card {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(12px);
+          border-radius: 14px;
+          color: #fff
+        }
+
+        .users-grid {
+          display: grid;
+          grid-template-columns: 40px 1fr 200px 160px;
+          gap: 8px;
+          align-items: center
+        }
+
+        .user-row {
+          display: contents
+        }
+
+        .user-index {
+          padding: 12px
+        }
+
+        .user-name {
+          padding: 12px;
+          font-weight: 600
+        }
+
+        .user-phone {
+          padding: 12px;
+          color: rgba(255, 255, 255, 0.75)
+        }
+
+        .user-status {
+          padding: 12px
+        }
+
+        @media(max-width:780px) {
+          .users-grid {
+            grid-template-columns: 40px 1fr
+          }
+        }
+      </style>
+
+      <script type="text/javascript" src="/js/users.js"></script>
+    </div>
+  </body>
+
+  <%- include('includes/footer') %>

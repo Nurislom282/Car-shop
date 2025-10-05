@@ -1,0 +1,529 @@
+<%- include('../includes/header') %>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/login.css" />
+
+    <body>
+        <div class="login-glass-container-moder">
+            <!-- Animated Background -->
+            <div class="animated-bg-login-moder">
+                <div class="gradient-blob-m blob-m-1"></div>
+                <div class="gradient-blob-m blob-m-2"></div>
+                <div class="gradient-blob-m blob-m-3"></div>
+                <canvas id="waveCanvas"></canvas>
+            </div>
+
+            <!-- Login Card -->
+            <div class="login-glass-card-moder">
+                <div class="login-header-moder">
+                    <div class="logo-circle-moder">
+                        <svg width="35" height="35" fill="white" viewBox="0 0 24 24">
+                            <path
+                                d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z" />
+                        </svg>
+                    </div>
+                    <h1>Moderator Portal</h1>
+                    <p>Access your event management dashboard</p>
+                </div>
+
+                <form action="/moderator/login" method="POST" class="login-form-moder">
+                    <div class="input-group-glass-moder">
+                        <label>Username</label>
+                        <div class="input-wrapper-moder">
+                            <svg class="input-icon-moder" width="20" height="20" fill="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                            <input type="text" name="memberNick" placeholder="Enter your username" required
+                                class="glass-input-moder" />
+                        </div>
+                    </div>
+
+                    <div class="input-group-glass-moder">
+                        <label>Password</label>
+                        <div class="input-wrapper-moder">
+                            <svg class="input-icon-moder" width="20" height="20" fill="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z" />
+                            </svg>
+                            <input type="password" name="memberPassword" placeholder="Enter your password" required
+                                class="glass-input-moder" />
+                        </div>
+                    </div>
+
+                    <div class="remember-forgot-moder">
+                        <label class="checkbox-label-moder">
+                            <input type="checkbox" id="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link-moder">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn-moder">
+                        <span>Sign In</span>
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="login-footer-moder">
+                    <p>Don't have an account? <a href="/moder/signup">Sign up</a></p>
+                    <a href="/moder" class="back-link-moder">← Back to Home</a>
+                </div>
+            </div>
+
+            <!-- Floating Shapes -->
+            <div class="floating-shapes-moder">
+                <div class="shape-moder shape-m-1"></div>
+                <div class="shape-moder shape-m-2"></div>
+                <div class="shape-moder shape-m-3"></div>
+                <div class="shape-moder shape-m-4"></div>
+            </div>
+        </div>
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                overflow: hidden;
+                height: 100vh;
+            }
+
+            .login-glass-container-moder {
+                position: relative;
+                width: 100%;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+
+            .animated-bg-login-moder {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                z-index: 0;
+            }
+
+            .gradient-blob-m {
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(90px);
+                opacity: 0.5;
+            }
+
+            .blob-m-1 {
+                width: 450px;
+                height: 450px;
+                background: radial-gradient(circle, #06beb6 0%, transparent 70%);
+                top: -100px;
+                left: -100px;
+                animation: blob-float-m 22s ease-in-out infinite;
+            }
+
+            .blob-m-2 {
+                width: 500px;
+                height: 500px;
+                background: radial-gradient(circle, #a8ff78 0%, transparent 70%);
+                bottom: -150px;
+                right: -150px;
+                animation: blob-float-m 28s ease-in-out infinite reverse;
+            }
+
+            .blob-m-3 {
+                width: 400px;
+                height: 400px;
+                background: radial-gradient(circle, #78ffd6 0%, transparent 70%);
+                top: 40%;
+                left: 40%;
+                animation: blob-float-m 25s ease-in-out infinite;
+            }
+
+            #waveCanvas {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 200px;
+                opacity: 0.3;
+            }
+
+            @keyframes blob-float-m {
+
+                0%,
+                100% {
+                    transform: translate(0, 0) scale(1);
+                }
+
+                33% {
+                    transform: translate(40px, -60px) scale(1.1);
+                }
+
+                66% {
+                    transform: translate(-30px, 30px) scale(0.9);
+                }
+            }
+
+            .login-glass-card-moder {
+                position: relative;
+                z-index: 10;
+                width: 100%;
+                max-width: 460px;
+                background: rgba(255, 255, 255, 0.12);
+                backdrop-filter: blur(40px) saturate(180%);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-radius: 32px;
+                padding: 50px 40px;
+                box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            .login-header-moder {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            .logo-circle-moder {
+                width: 80px;
+                height: 80px;
+                background: rgba(255, 255, 255, 0.18);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 24px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .login-header-moder h1 {
+                font-size: 32px;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 8px;
+                letter-spacing: -0.5px;
+            }
+
+            .login-header-moder p {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 16px;
+            }
+
+            .login-form-moder {
+                margin-bottom: 30px;
+            }
+
+            .input-group-glass-moder {
+                margin-bottom: 24px;
+            }
+
+            .input-group-glass-moder label {
+                display: block;
+                color: rgba(255, 255, 255, 0.95);
+                font-weight: 600;
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+
+            .input-wrapper-moder {
+                position: relative;
+            }
+
+            .input-icon-moder {
+                position: absolute;
+                left: 18px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(255, 255, 255, 0.7);
+                pointer-events: none;
+            }
+
+            .glass-input-moder {
+                width: 100%;
+                padding: 16px 18px 16px 50px;
+                background: rgba(255, 255, 255, 0.12);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-radius: 16px;
+                color: #fff;
+                font-size: 15px;
+                transition: all 0.3s ease;
+                outline: none;
+            }
+
+            .glass-input-moder::placeholder {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .glass-input-moder:focus {
+                background: rgba(255, 255, 255, 0.18);
+                border-color: rgba(255, 255, 255, 0.45);
+                box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+            }
+
+            .remember-forgot-moder {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 28px;
+            }
+
+            .checkbox-label-moder {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .checkbox-label-moder input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+            }
+
+            .forgot-link-moder {
+                color: rgba(255, 255, 255, 0.9);
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+                transition: color 0.3s ease;
+            }
+
+            .forgot-link-moder:hover {
+                color: #fff;
+            }
+
+            .submit-btn-moder {
+                width: 100%;
+                padding: 18px;
+                background: rgba(255, 255, 255, 0.95);
+                color: #11998e;
+                border: none;
+                border-radius: 16px;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+                box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+            }
+
+            .submit-btn-moder:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
+            }
+
+            .login-footer-moder {
+                text-align: center;
+                padding-top: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.15);
+            }
+
+            .login-footer-moder p {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 15px;
+                margin-bottom: 12px;
+            }
+
+            .login-footer-moder a {
+                color: #fff;
+                text-decoration: none;
+                font-weight: 600;
+                transition: opacity 0.3s ease;
+            }
+
+            .login-footer-moder a:hover {
+                opacity: 0.8;
+            }
+
+            .back-link-moder {
+                display: inline-block;
+                margin-top: 8px;
+                color: rgba(255, 255, 255, 0.75) !important;
+                font-size: 14px;
+                font-weight: 500 !important;
+            }
+
+            .floating-shapes-moder {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            .shape-moder {
+                position: absolute;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+            }
+
+            .shape-m-1 {
+                width: 100px;
+                height: 100px;
+                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+                top: 10%;
+                left: 8%;
+                animation: float-shape-m 18s ease-in-out infinite;
+            }
+
+            .shape-m-2 {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                top: 65%;
+                right: 12%;
+                animation: float-shape-m 22s ease-in-out infinite reverse;
+            }
+
+            .shape-m-3 {
+                width: 120px;
+                height: 120px;
+                border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;
+                bottom: 15%;
+                left: 15%;
+                animation: float-shape-m 20s ease-in-out infinite;
+            }
+
+            .shape-m-4 {
+                width: 90px;
+                height: 90px;
+                border-radius: 50%;
+                top: 30%;
+                right: 20%;
+                animation: float-shape-m 25s ease-in-out infinite;
+            }
+
+            @keyframes float-shape-m {
+
+                0%,
+                100% {
+                    transform: translate(0, 0) rotate(0deg);
+                }
+
+                33% {
+                    transform: translate(20px, -30px) rotate(120deg);
+                }
+
+                66% {
+                    transform: translate(-15px, 20px) rotate(240deg);
+                }
+            }
+
+            @media (max-width: 640px) {
+                .login-glass-card-moder {
+                    padding: 40px 30px;
+                }
+
+                .login-header-moder h1 {
+                    font-size: 28px;
+                }
+            }
+        </style>
+
+        <script>
+            // Entrance Animation
+            anime({
+                targets: '.login-glass-card-moder',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 300
+            });
+
+            anime({
+                targets: '.logo-circle-moder',
+                scale: [0, 1],
+                rotate: [360, 0],
+                duration: 900,
+                easing: 'easeOutBack',
+                delay: 500
+            });
+
+            anime({
+                targets: '.input-group-glass-moder',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                delay: anime.stagger(100, { start: 800 }),
+                easing: 'easeOutExpo'
+            });
+
+            anime({
+                targets: '.submit-btn-moder',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 600,
+                delay: 1200,
+                easing: 'easeOutExpo'
+            });
+
+            // Wave Animation
+            const canvas = document.getElementById('waveCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = 200;
+
+            let wave = { y: canvas.height / 2, length: 0.01, amplitude: 40, frequency: 0.02 };
+            let increment = wave.frequency;
+
+            function animateWave() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+
+                for (let i = 0; i < canvas.width; i++) {
+                    ctx.lineTo(i, wave.y + Math.sin(i * wave.length + increment) * wave.amplitude);
+                }
+
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.fill();
+
+                increment += wave.frequency;
+                requestAnimationFrame(animateWave);
+            }
+            animateWave();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+            });
+
+            // Input focus animation
+            document.querySelectorAll('.glass-input-moder').forEach(input => {
+                input.addEventListener('focus', function () {
+                    anime({
+                        targets: this.parentElement.querySelector('.input-icon-moder'),
+                        scale: [1, 1.2, 1],
+                        duration: 400,
+                        easing: 'easeOutElastic(1, .6)'
+                    });
+                });
+            });
+        </script>
+    </body>
+
+    <%- include('../includes/footer') %>

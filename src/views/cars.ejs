@@ -1,0 +1,251 @@
+<%- include('includes/header') %>
+
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/cars.css">
+
+  <body>
+    <div class="page-root">
+      <div class="bg-blobs" aria-hidden="true">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+        <div class="blob b3"></div>
+        <div class="blob b4"></div>
+      </div>
+
+      <header class="glass-header">
+        <div class="brand">
+          <img src="/img/favicon.png" width="36" height="36" alt="logo">
+          <div class="brand-text">Restaurant Admin</div>
+        </div>
+
+        <nav class="nav-links" aria-label="Primary">
+          <a href="/admin/" class="nav-item">Home</a>
+          <a href="/admin/car/all" class="nav-item active">Cars</a>
+          <a href="/admin/user/all" class="nav-item">Users</a>
+          <a href="/admin/logout" class="nav-item" onclick="return confirm('Do you want to logout?')">Logout</a>
+        </nav>
+
+        <button id="motionToggle" class="btn-circle" aria-pressed="false" title="Toggle motion">●</button>
+      </header>
+
+      <main class="container" style="max-width:1200px">
+        <section class="cars-panel glass-card">
+          <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
+            <h2>Car Inventory</h2>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button id="process-btn" class="btn btn-primary">Create</button>
+              <input id="searchInput" placeholder="Search cars..."
+                style="padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff" />
+            </div>
+          </div>
+
+          <div class="cars-grid">
+            <% if (cars && cars.length) { %>
+              <% cars.forEach(function(value, key){ %>
+                <article class="car-card" data-anim data-id="<%= value._id %>">
+                  <div class="card-media">
+                    <% if (value.carImages && value.carImages.length) { %>
+                      <% const imgPath=(value.carImages && value.carImages[0]) ?
+                        String(value.carImages[0]).replace(/^\/+/, '' ).replace(/^uploads\//, '' ) : null; %>
+                        <% if (imgPath) { %>
+                          <img src="/uploads/<%= imgPath %>" alt="<%= value.carName %>" loading="lazy" />
+                          <% } %>
+                            <% } else { %>
+                              <div class="placeholder">No Image</div>
+                              <% } %>
+                  </div>
+
+                  <div class="card-body">
+                    <h3 class="p-name">
+                      <%= value.carName %>
+                    </h3>
+                    <div class="p-meta">
+                      <span class="p-type">
+                        <%= value.carType %>
+                      </span>
+                      <span class="p-price">$<%= value.carPrice %></span>
+                    </div>
+                    <p class="p-desc">
+                      <%= (value.carDesc)%>
+                    </p>
+                  </div>
+
+                  <div class="card-footer">
+                    <div class="left-actions">
+                      <select class="spec-select new-car-status" data-id="<%= value._id %>">
+                        <option value="PAUSE" <%=value.carStatus==='PAUSE' ? 'selected' : '' %>>PAUSE</option>
+                        <option value="PROCESS" <%=value.carStatus==='PROCESS' ? 'selected' : '' %>>PROCESS</option>
+                        <option value="DELETE" <%=value.carStatus==='DELETE' ? 'selected' : '' %>>DELETE</option>
+                      </select>
+                    </div>
+
+                    <div class="right-actions">
+                      <a href="/admin/car/<%= value._id %>" class="action-btn">Edit</a>
+                      <a href="/car/<%= value._id %>" class="action-btn ghost" target="_blank">View</a>
+                      <button class="action-btn del" data-id="<%= value._id %>">Delete</button>
+                    </div>
+                  </div>
+                </article>
+                <% }) %>
+                  <% } else { %>
+                    <div class="empty-state glass-card" style="text-align:center;padding:36px">No cars found — click
+                      <strong>New Car</strong> to add one.
+                    </div>
+                    <% } %>
+          </div>
+        </section>
+
+        <!-- right panel: quick stats / filters -->
+        <aside class="right-panel glass-card">
+          <h3>Quick Actions</h3>
+          <div class="stat-list">
+            <div class="stat">
+              <div class="num">
+                <%= cars ? cars.length : 0 %>
+              </div>
+              <div class="label">Total Items</div>
+            </div>
+            <div class="stat">
+              <div class="num">--</div>
+              <div class="label">Active</div>
+            </div>
+            <div class="stat">
+              <div class="num">--</div>
+              <div class="label">Paused</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <button id="bulkDelete" class="btn btn-ghost">Bulk Delete</button>
+          </div>
+        </aside>
+
+      </main>
+
+      <!-- Modal backdrop + New Car modal (progressive enhancement) -->
+      <div id="modalBackdrop" class="modal-backdrop" hidden></div>
+      <aside id="newCarModal" class="new-car-form" role="dialog" aria-hidden="true">
+        <form action="/admin/car/create" method="POST" enctype="multipart/form-data">
+          <h3>New Car</h3>
+          <label>Car Name</label>
+          <input name="carName" required>
+          <div class="row">
+            <div>
+              <label>Brand</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <select name="carBrand" required>
+                  <option value="">-- Select Brand --</option>
+                  <% if (typeof brands !=='undefined' && brands.length) { %>
+                    <% brands.forEach(function(b){ %>
+                      <option value="<%= b._id %>">
+                        <%= b.BrandName %>
+                      </option>
+                      <% }) %>
+                        <% } %>
+                </select>
+                <button id="newBrandBtn" type="button" class="btn btn-ghost" title="Create Brand">New Brand</button>
+              </div>
+            </div>
+            <div>
+              <label>Type</label>
+              <select name="carType" required>
+                <option value="SEDAN">SEDAN</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Price</label>
+              <input type="number" name="carPrice" required>
+            </div>
+            <div>
+              <label>Left Count</label>
+              <input type="number" name="carLeftCount" required>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Year</label>
+              <input type="date" name="carYear" required />
+            </div>
+            <div>
+              <label>Engine (cc)</label>
+              <input type="number" name="carEngine" required />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Transmission</label>
+              <select name="carTransmission" required>
+                <option value="MANUAL">MANUAL</option>
+                <option value="AUTO">AUTO</option>
+              </select>
+            </div>
+            <div>
+              <label>Fuel</label>
+              <select name="carFuel" required>
+                <option value="GREENGAS">GREENGAS</option>
+                <option value="DISEL">DISEL</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Color</label>
+              <input type="text" name="carColor" required />
+            </div>
+            <div>
+              <label>State</label>
+              <select name="carState" required>
+                <option value="NEW">NEW</option>
+                <option value="USED">USED</option>
+                <option value="OLD">OLD</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Car Images (up to 5)</label>
+          <div class="upload-grid" id="uploadGrid">
+            <% for(let i=1;i<=5;i++){ %>
+              <div class="upload-slot">
+                <img src="/img/upload.svg" class="slot-placeholder" />
+                <div class="slot-preview" style="display:none"><img src="" alt="preview" /></div>
+                <input type="file" name="carImage" accept="image/*" />
+              </div>
+              <% } %>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" id="cancelModal" class="btn-ghost">Cancel</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+          </div>
+        </form>
+      </aside>
+
+      <!-- New Brand modal -->
+      <aside id="newBrandModal" class="new-car-form" role="dialog" aria-hidden="true" style="width:380px">
+        <form action="/admin/brand/create" method="POST" enctype="multipart/form-data">
+          <h3>New Brand</h3>
+          <label>Brand Name</label>
+          <input name="BrandName" required />
+          <label>Brand Image (optional)</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <img id="brandImgPlaceholder" src="/img/upload.svg" style="width:48px;height:48px" />
+            <input type="file" name="brandImage" accept="image/*" />
+          </div>
+          <div class="form-actions" style="margin-top:12px">
+            <button type="button" id="cancelBrand" class="btn-ghost">Cancel</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+          </div>
+        </form>
+      </aside>
+
+
+
+      <!-- Anime.js -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+      <script type="text/javascript" src="/js/cars.js"></script>
+    </div>
+  </body>
+
+  <%- include('includes/footer') %>

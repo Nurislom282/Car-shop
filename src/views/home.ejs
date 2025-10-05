@@ -1,0 +1,107 @@
+<%- include('includes/header') %>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/home.css" />
+
+  <body>
+    <div class="main-container">
+      <!-- Liquid Background -->
+      <div class="liquid-background">
+        <canvas id="gradientCanvas"></canvas>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="liquid-nav">
+        <div class="nav-content">
+          <div class="nav-brand">
+            <div class="logo-container">
+              <img src="/img/favicon.png" width="32" height="32" alt="Logo">
+            </div>
+            <span class="brand-text">Admin</span>
+          </div>
+          <div class="nav-links">
+            <a href="/admin" class="nav-link active">
+              <span>Home</span>
+            </a>
+            <% if(!member) { %>
+              <a href="/admin/signup" class="nav-link">
+                <span>Signup</span>
+              </a>
+              <a href="/admin/login" class="nav-link-cta">
+                <span>Login</span>
+              </a>
+              <% } else { %>
+                <a href="/admin/car/all" class="nav-link">
+                  <span>Cars</span>
+                </a>
+                <a href="/admin/user/all" class="nav-link">
+                  <span>Users</span>
+                </a>
+                <a href="/admin/logout" class="nav-link-cta" onclick="return confirm('Logout?')">
+                  <span>Logout</span>
+                </a>
+                <% } %>
+          </div>
+        </div>
+      </nav>
+      <!-- Features Section -->
+      <section class="features-section">
+        <div class="section-header">
+          <% if(member) { %>
+            <!-- Dashboard Preview -->
+            <section class="dashboard-section">
+              <div class="dashboard-card">
+                <div class="dashboard-header">
+                  <h3>Your Dashboard</h3>
+                  <div class="time-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>Live</span>
+                  </div>
+                </div>
+                <div class="dashboard-stats">
+                  <div class="dash-stat">
+                    <div class="dash-stat-icon">📊</div>
+                    <div class="dash-stat-content">
+                      <div class="dash-stat-value">1,247</div>
+                      <div class="dash-stat-label">Total Vehicles</div>
+                    </div>
+                  </div>
+                  <div class="dash-stat">
+                    <div class="dash-stat-icon">👥</div>
+                    <div class="dash-stat-content">
+                      <div class="dash-stat-value">3,821</div>
+                      <div class="dash-stat-label">Active Customers</div>
+                    </div>
+                  </div>
+                  <div class="dash-stat">
+                    <div class="dash-stat-icon">💰</div>
+                    <div class="dash-stat-content">
+                      <div class="dash-stat-value">$2.4M</div>
+                      <div class="dash-stat-label">Monthly Revenue</div>
+                    </div>
+                  </div>
+                  <div class="dash-stat">
+                    <div class="dash-stat-icon">⭐</div>
+                    <div class="dash-stat-content">
+                      <div class="dash-stat-value">4.9/5</div>
+                      <div class="dash-stat-label">Customer Rating</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <% } %>
+              <div class="section-badge">Fast</div>
+              <div class="section-badge">Reliable</div>
+              <h2 class="section-title">Everything You Need</h2>
+              <p class="section-subtitle">Powerful tools to manage adminPanel</p>
+        </div>
+
+      </section>
+
+    </div>
+    <script type="text/javascript" src="/js/home.js"></script>
+  </body>
+
+  <%- include('includes/footer') %>
