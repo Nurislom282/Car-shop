@@ -20,8 +20,6 @@ const brandSchema = new Schema(
   { timestamps: true } //updatedAt createdAt
 );
 
-brandSchema.index(
-  { productName: 1 },
-  { unique: true }
-);
+// Ensure BrandName is unique to prevent duplicate brand entries
+brandSchema.index({ BrandName: 1 }, { unique: true });
 export default mongoose.model("CarBrand", brandSchema);

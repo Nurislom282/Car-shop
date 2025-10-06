@@ -99,7 +99,7 @@ const carSchema = new Schema(
 );
 
 carSchema.index(
-  { productName: 1, productSize: 1, ProductVolume: 1 },
+  { carName: 1 },
   { unique: true }
 );
 export default mongoose.model("Car", carSchema);

@@ -55,9 +55,37 @@
             const q = search.value.toLowerCase();
             document.querySelectorAll('.car-card').forEach(card => {
               const name = card.querySelector('.p-name')?.textContent.toLowerCase() || '';
-              card.style.display = name.includes(q) ? '' : 'none';
+              const brand = card.dataset.brand || '';
+              // respect any active brand selection
+              const activeBrand = document.querySelector('.brand-item.active')?.dataset.brand || '';
+              const brandMatch = !activeBrand || activeBrand === '' || activeBrand === brand;
+              card.style.display = (name.includes(q) && brandMatch) ? '' : 'none';
             });
           });
+        }
+
+        // brand filter (client-side)
+        const brandItems = Array.from(document.querySelectorAll('.brand-item'));
+        if (brandItems.length) {
+          brandItems.forEach(btn => {
+            btn.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              // toggle active
+              brandItems.forEach(b=>b.classList.remove('active'));
+              btn.classList.add('active');
+              const selected = btn.dataset.brand || '';
+              const q = search ? search.value.toLowerCase() : '';
+              document.querySelectorAll('.car-card').forEach(card => {
+                const name = card.querySelector('.p-name')?.textContent.toLowerCase() || '';
+                const brand = card.dataset.brand || '';
+                const brandMatch = !selected || selected === '' || selected === brand;
+                card.style.display = (name.includes(q) && brandMatch) ? '' : 'none';
+              });
+            });
+          });
+          // set 'All' active by default if present
+          const allBtn = brandItems.find(b => b.dataset.brand === '');
+          if (allBtn) { allBtn.classList.add('active'); }
         }
 
         // motion toggle (reduce motion)
