@@ -1,101 +1,440 @@
 <%- include('includes/header') %>
+<link rel="stylesheet" type="text/css" href="/css/users.css" />
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-  <link rel="stylesheet" type="text/css" href="/css/users.css" />
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
 
-  <body>
-    <div class="users-page">
-      <header class="glass-header" style="max-width:1200px;margin:24px auto;">
-        <div class="brand">
-          <img src="/img/favicon.png" width="36" height="36" alt="logo">
-          <div class="brand-text">Restaurant Admin</div>
+  .users-page {
+    position: relative;
+    z-index: 1;
+  }
+
+  #canvas-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.3;
+  }
+
+  .glass-header {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 16px 28px;
+    margin: 24px auto;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand img {
+    border-radius: 10px;
+    filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.3));
+  }
+
+  .brand-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .header-links {
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-links a {
+    padding: 10px 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-links a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .header-links a:hover::before {
+    opacity: 1;
+  }
+
+  .header-links a.active {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 32px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .glass-card h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .users-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .user-row {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 50px 1fr 200px 180px;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  .user-row:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateX(4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .user-index {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 17px;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-phone {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .spec-select {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  .spec-select:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .spec-select:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+  }
+
+  .spec-select option {
+    background: #764ba2;
+    color: #fff;
+    padding: 10px;
+  }
+
+  .login-prompt {
+    padding: 60px 40px;
+    text-align: center;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  @media(max-width: 780px) {
+    .user-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .user-index {
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
+    }
+
+    .header-links {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .header-links a {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+
+    .glass-header {
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+  }
+</style>
+
+<body>
+  <canvas id="canvas-bg"></canvas>
+  <div class="users-page">
+    <header class="glass-header">
+      <div class="brand">
+        <img src="/img/favicon.png" width="36" height="36" alt="logo">
+        <div class="brand-text">Restaurant Admin</div>
+      </div>
+      <nav class="header-links">
+        <a href="/admin/">Home</a>
+        <a href="/admin/car/all">Cars</a>
+        <a href="/admin/user/all" class="active">Users</a>
+        <a href="/admin/logout" onclick="return confirm('Do you really want to logout?')">Logout</a>
+      </nav>
+    </header>
+
+    <main>
+      <% if(!member) { %>
+        <div class="glass-card login-prompt">
+          Please login first!
         </div>
-        <nav class="header-links">
-          <a href="/admin/">Home</a>
-          <a href="/admin/car/all">Cars</a>
-          <a href="/admin/user/all" class="active">Users</a>
-          <a href="/admin/logout" onclick="return confirm('Do you really want to logout?')">Logout</a>
-        </nav>
-      </header>
+        <% } else { %>
+        <div class="glass-card">
+          <h3>All Users List</h3>
+<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;">
+  <div style="font-weight:600;color:#fff;">Show:</div>
+  <a href="/admin/user/all?type=users"
+    class="filter-link <%= (typeof filterType === 'undefined' || filterType==='users') ? 'active' : '' %>">Users</a>
+  <a href="/admin/user/all?type=moderators"
+    class="filter-link <%= (filterType==='moderators') ? 'active' : '' %>">Moderators</a>
+</div>
 
-      <main style="max-width:1200px;margin:20px auto;padding:0 20px;">
-        <% if(!member) { %>
-          <div class="glass-card" style="padding:40px;text-align:center;font-size:28px">Please login first!</div>
-          <% } else { %>
-            <div class="glass-card" style="padding:20px">
-              <h3>All Users List</h3>
-              <div class="users-grid" style="margin-top:16px">
-                <% users.forEach(function(value, index){ %>
-                  <div class="user-row" data-id="<%= value._id %>">
-                    <div class="user-index">
-                      <%= index+1 %>
-                    </div>
-                    <div class="user-name">
-                      <%= value.memberNick %>
-                    </div>
-                    <div class="user-phone">
-                      <%= value.memberPhone %>
-                    </div>
-                    <div class="user-status">
-                      <select class="spec-select member-status" id="<%= value._id %>">
-                        <option value="ACTIVE" <%=value.memberStatus==='ACTIVE' ? 'selected' :'' %>>ACTIVE</option>
-                        <option value="BLOCK" <%=value.memberStatus==='BLOCK' ? 'selected' :'' %>>BLOCK</option>
-                        <option value="DELETE" <%=value.memberStatus==='DELETE' ? 'selected' :'' %>>DELETE</option>
-                      </select>
-                    </div>
+<div class="users-grid">
+  <% users.forEach(function(value, index){ %>
+    <div class="user-row" data-id="<%= value._id %>">
+      <div class="user-index">
+        <%= index+1 %>
+      </div>
+                <div style="display:flex;flex-direction:column;">
+                  <div class="user-name">
+                    <%= value.memberNick %>
                   </div>
-                  <% }) %>
+                  <div class="user-phone">
+                    <%= value.memberPhone %>
+                  </div>
+                </div>
+                <div class="user-status">
+                  <select class="spec-select member-status" id="<%= value._id %>">
+                    <option value="ACTIVE" <%=value.memberStatus==='ACTIVE' ? 'selected' :'' %>>ACTIVE</option>
+                    <option value="BLOCK" <%=value.memberStatus==='BLOCK' ? 'selected' :'' %>>BLOCK</option>
+                    <option value="DELETE" <%=value.memberStatus==='DELETE' ? 'selected' :'' %>>DELETE</option>
+                  </select>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                  <!-- Edit button toggles inline edit UI -->
+                  <button class="btn-edit" data-id="<%= value._id %>" style="padding:8px 12px;border-radius:10px;">Edit</button>
+                  <!-- Delete button will set status to DELETE via API -->
+                  <button class="btn-delete" data-id="<%= value._id %>" style="padding:8px 12px;border-radius:10px;">Delete</button>
+                </div>
+                
+                <!-- Inline edit area (hidden by default) -->
+                <div class="inline-edit"
+                  style="display:none;grid-column:1/-1;margin-top:12px;padding:12px;background:rgba(0,0,0,0.08);border-radius:10px;">
+                  <input type="text" class="edit-nick" placeholder="Nickname" value="<%= value.memberNick %>"
+                    style="padding:8px;border-radius:6px;margin-right:8px;" />
+                  <input type="text" class="edit-phone" placeholder="Phone" value="<%= value.memberPhone %>"
+                    style="padding:8px;border-radius:6px;margin-right:8px;" />
+                  <button class="btn-save" data-id="<%= value._id %>" style="padding:8px 12px;border-radius:10px;">Save</button>
+                  <button class="btn-cancel" style="padding:8px 12px;border-radius:10px;">Cancel</button>
+                </div>
+
               </div>
-            </div>
-            <% } %>
-      </main>
+              <% }) %>
+                </div>
+                </div>
+                <% } %>
+                  </main>
+  </div>
 
-      <style>
-        .glass-card {
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(12px);
-          border-radius: 14px;
-          color: #fff
-        }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script>
+    // Animated background particles
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-        .users-grid {
-          display: grid;
-          grid-template-columns: 40px 1fr 200px 160px;
-          gap: 8px;
-          align-items: center
-        }
+    const particles = [];
+    const particleCount = 60;
 
-        .user-row {
-          display: contents
-        }
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 3 + 1
+      });
+    }
 
-        .user-index {
-          padding: 12px
-        }
+        function animateParticles() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
 
-        .user-name {
-          padding: 12px;
-          font-weight: 600
-        }
+          particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
 
-        .user-phone {
-          padding: 12px;
-          color: rgba(255, 255, 255, 0.75)
-        }
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-        .user-status {
-          padding: 12px
-        }
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          });
+      
+        requestAnimationFrame(animateParticles);
+      }
+        animateParticles();
 
-        @media(max-width:780px) {
-          .users-grid {
-            grid-template-columns: 40px 1fr
-          }
-        }
-      </style>
+        // Anime.js animations
+        anime({
+          targets: '.glass-header',
+          opacity: [0, 1],
+          translateY: [-20, 0],
+          duration: 800,
+          easing: 'easeOutCubic'
+        });
 
-      <script type="text/javascript" src="/js/users.js"></script>
-    </div>
-  </body>
+        anime({
+          targets: '.glass-card',
+          opacity: [0, 1],
+          translateY: [20, 0],
+          duration: 800,
+          delay: 200,
+          easing: 'easeOutCubic'
+        });
 
-  <%- include('includes/footer') %>
+        anime({
+          targets: '.user-row',
+          opacity: [0, 1],
+          translateX: [-20, 0],
+          duration: 600,
+          delay: anime.stagger(50, { start: 400 }),
+          easing: 'easeOutCubic'
+        });
+
+        // Hover animations for user rows
+        document.querySelectorAll('.user-row').forEach(row => {
+          row.addEventListener('mouseenter', function () {
+            anime({
+              targets: this.querySelector('.user-index'),
+              scale: [1, 1.15],
+              duration: 300,
+              easing: 'easeOutCubic'
+            });
+          });
+      
+        row.addEventListener('mouseleave', function () {
+          anime({
+            targets: this.querySelector('.user-index'),
+            scale: [1.15, 1],
+            duration: 300,
+            easing: 'easeOutCubic'
+          });
+        });
+      });
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        });
+      </script>
+  <script type="text/javascript" src="/js/users.js"></script>
+</body>
+<%- include('includes/footer') %>

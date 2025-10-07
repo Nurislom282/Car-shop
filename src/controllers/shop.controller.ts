@@ -107,9 +107,17 @@ shopController.logout = async (req: AdminRequest, res: Response) => {
 shopController.getUsers = async (req: Request, res: Response) => {
   try {
     console.log("getUsers");
-    const result = await memberService.getUsers();
+    // allow optional filtering by type: 'users' (default) or 'moderators'
+    const filterType = (req.query.type as string) || 'users';
+    let result;
+    if (filterType === 'moderators') {
+      result = await memberService.getModerators();
+    } else {
+      result = await memberService.getUsers();
+    }
     console.log("result:", result);
-    res.render("users", { users: result });
+    // pass the chosen filter type to the view so UI can reflect it
+    res.render("users", { users: result, filterType });
   } catch (err) {
     console.log("Error, getUsers:", err);
     res.redirect("/login");
@@ -156,7 +164,7 @@ shopController.verifyShop = (
   } else {
     const message = Message.NOT_AUTHENTICATED;
     res.send(
-      `<script> alert("${message}"); window.location.replace('admin/login'); </script>`
+      `<script> alert("${message}"); window.location.replace('/admin/login'); </script>`
     );
   }
 };

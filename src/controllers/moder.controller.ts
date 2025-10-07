@@ -212,7 +212,7 @@ moderatorController.verifyModerator = (
   } else {
     const message = Message.NOT_AUTHENTICATED;
     res.send(
-      `<script> alert("${message}"); window.location.replace('admin/login'); </script>`
+      `<script> alert("${message}"); window.location.replace('/moderator/login'); </script>`
     );
   }
 };
