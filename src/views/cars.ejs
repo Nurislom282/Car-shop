@@ -14,8 +14,8 @@
 
       <header class="glass-header">
         <div class="brand">
-          <img src="/img/favicon.png" width="36" height="36" alt="logo">
-          <div class="brand-text">Restaurant Admin</div>
+          <a href="/admin/"><img src="/img/favicon.png" width="36" height="36" alt="logo"></a>
+          <div class="brand-text">CAR-SHOP(Admin)</div>
         </div>
 
         <nav class="nav-links" aria-label="Primary">
@@ -33,11 +33,12 @@
             <div style="display:flex;gap:10px;align-items:center">
               <button id="process-btn" class="btn btn-primary">Create</button>
               <input id="searchInput" placeholder="Search cars..."
+                value="<%= pagination && pagination.query && pagination.query.search ? pagination.query.search : '' %>"
                 style="padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff" />
             </div>
           </div>
 
-          <div class="cars-grid">
+            <div class="cars-grid">
             <% if (cars && cars.length) { %>
               <% cars.forEach(function(value, key){ %>
                 <article class="car-card" data-anim data-id="<%= value._id %>" data-brand="<%= value.carBrand %>">
@@ -90,6 +91,31 @@
                     </div>
                     <% } %>
           </div>
+<% if (typeof pagination !=='undefined' ) { %>
+  <div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="color:rgba(255,255,255,0.85)">Showing <%= (pagination.page-1)*pagination.limit + 1 %> - <%=
+          Math.min(pagination.page*pagination.limit, pagination.total) %> of <%= pagination.total %>
+    </div>
+    <nav aria-label="Pagination">
+      <ul style="list-style:none;display:flex;gap:8px;margin:0;padding:0">
+        <% const q=Object.assign({}, pagination.query || {}); %>
+          <% function pageLink(p){ q.page=p; const params=Object.keys(q).map(k=> encodeURIComponent(k) + '=' +
+            encodeURIComponent(q[k])).join('&'); return '/admin/car/all' + (params?('?'+params):''); } %>
+            <% if (pagination.page> 1) { %>
+              <li><a class="btn btn-ghost" href="<%= pageLink(pagination.page-1) %>">Prev</a></li>
+              <% } %>
+                <% for(let i=1; i <=pagination.pages; i++) { %>
+                  <li><a class="btn <%= i===pagination.page ? 'btn-primary' : 'btn-ghost' %>" href="<%= pageLink(i) %>">
+                      <%= i %>
+                    </a></li>
+                  <% } %>
+                    <% if (pagination.page < pagination.pages) { %>
+                      <li><a class="btn btn-ghost" href="<%= pageLink(pagination.page+1) %>">Next</a></li>
+                      <% } %>
+      </ul>
+    </nav>
+  </div>
+  <% } %>
         </section>
 
         <!-- right panel: quick stats / filters -->
@@ -98,7 +124,7 @@
           <div class="stat-list">
             <div class="stat">
               <div class="num">
-                <%= cars ? cars.length : 0 %>
+                <%= typeof pagination !=='undefined' ? pagination.total : (cars ? cars.length : 0) %>
               </div>
               <div class="label">Total Items</div>
             </div>
@@ -120,22 +146,29 @@
             <h4 style="margin:6px 0 8px">Filter by Brand</h4>
             <div class="brand-filter" style="display:flex;gap:8px;flex-wrap:wrap">
               <% if (typeof brands !=='undefined' && brands.length) { %>
-                <button class="btn btn-primary" data-brand="">All</button>
+                <% const currentBrand=(typeof pagination !=='undefined' && pagination.query && pagination.query.brand) ?
+                  String(pagination.query.brand) : '' ; %>
+                  <button class="brand-item btn <%= currentBrand === '' ? 'btn-primary' : 'btn-ghost' %>" data-brand="">All</button>
                 <% brands.forEach(function(b){ %>
                   <% const bImg=b.BrandImages && b.BrandImages.length ? String(b.BrandImages[0]).replace(/^\/+/, ''
                     ).replace(/^uploads\//, '' ) : null; %>
-                    <button class="brand-item" data-brand="<%= b._id %>" title="<%= b.BrandName %>"
-                      style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:transparent">
-                      <% if (bImg) { %>
-                        <img src="/uploads/<%= bImg %>" alt="<%= b.BrandName %>"
-                          style="width:28px;height:28px;border-radius:6px;object-fit:cover" />
-                        <% } else { %>
-                          <img src="/img/upload.svg" alt="<%= b.BrandName %>" style="width:28px;height:28px;opacity:0.6" />
-                          <% } %>
-                            <span style="font-size:13px">
-                              <%= b.BrandName %>
-                            </span>
-                    </button>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <button class="brand-item btn <%= currentBrand === String(b._id) ? 'btn-primary' : 'btn-ghost' %>"
+                        data-brand="<%= b._id %>" title="<%= b.BrandName %>"
+                        style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:transparent">
+                        <% if (bImg) { %>
+                          <img src="/uploads/<%= bImg %>" alt="<%= b.BrandName %>"
+                            style="width:28px;height:28px;border-radius:6px;object-fit:cover" />
+                          <% } else { %>
+                            <img src="/img/upload.svg" alt="<%= b.BrandName %>" style="width:28px;height:28px;opacity:0.6" />
+                            <% } %>
+                              <span style="font-size:13px">
+                                <%= b.BrandName %>
+                              </span>
+                      </button>
+                      <button class="btn btn-ghost btn-edit-brand" data-id="<%= b._id %>">Edit</button>
+                      <button class="btn btn-ghost btn-delete-brand" data-id="<%= b._id %>">Delete</button>
+                      </div>
                     <% }) %>
                       <% } %>
             </div>
@@ -187,6 +220,15 @@
           </div>
           <div class="row">
             <div>
+              <label>Discount (%)</label>
+              <input type="number" name="carDeiscount" min="0" max="100" value="0" />
+              </div>
+              <div>
+                <!-- placeholder for layout symmetry -->
+              </div>
+              </div>
+              <div class="row">
+                <div>
               <label>Year</label>
               <input type="date" name="carYear" required />
             </div>

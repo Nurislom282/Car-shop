@@ -2,11 +2,12 @@ import express from "express";
 const router = express.Router();
 import membersController from "./controllers/member.controller";
 import uploader from "./libs/utils/uploader";
-import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
+import carController from "./controllers/car.controller";
+import brandController from "./controllers/brand.controller";
 
 /** Member **/
-router.get("/member/restaurant", membersController.getRestaurant);
+router.get("/member/shop", membersController.getShop);
 router.post("/member/login", membersController.login);
 router.post("/member/signup", membersController.signup);
 router.post(
@@ -27,21 +28,22 @@ router.post(
 );
 
 router.get("/member/top-users", membersController.getTopUsers);
+/** Car **/
 
-/** Product **/
-router.get("/product/all", productController.getProducts);
-router.get(
-  "/product/:id",
-  membersController.retrieveAuth,
-  productController.getProduct
-);
-import carController from "./controllers/car.controller";
-
-// Public car view (rendered page)
+router.get("/car/all", carController.getCars);
+router.get("/car/discounted", carController.getDiscountedCars);
+router.get("/car/top-viewed", carController.getTopViewedCars);
 router.get(
   "/car/:id",
-  carController.getCarPage
+  membersController.retrieveAuth,
+  carController.getCar
 );
+
+
+/** Brand **/
+router.get("/car/brand/:brandId", carController.getCarsByBrand);
+router.get("/brand/top", brandController.getTopBrands);
+
 /** Order **/
 router.post(
   "/order/create",

@@ -74,10 +74,19 @@ carController.getCarPage = async (req: Request, res: Response) => {
 carController.getAllCars = async (req: Request, res: Response) => {
   try {
     console.log("getAllCars");
-    const data = await carService.getCarsSSR();
+    const { page, limit, order, carType, search } = req.query;
+    const inquiry = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 12,
+      order: String(order || ''),
+      carType: carType ? (carType as any) : undefined,
+      brand: (req.query.brand as string) || undefined,
+      search: search ? String(search) : undefined,
+    };
+    const paged = await carService.getCarsSSR(inquiry);
     // fetch brands to populate brand select in the modal
     const brands = await BrandModel.find().exec();
-    res.render("cars", { cars: data, brands });
+    res.render("cars", { cars: paged.data, brands, pagination: { total: paged.total, page: paged.page, limit: paged.limit, pages: paged.pages, query: req.query } });
   } catch (err) {
     console.log("Error, getAllCars:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
@@ -120,6 +129,61 @@ carController.createNewCar = async (
     res.send(
       `<script> alert("${message}"); window.location.replace('/admin/car/all') </script>`
     );
+  }
+};
+
+carController.getDiscountedCars = async (req: Request, res: Response) => {
+  try {
+    console.log("getDiscountedCars");
+    const { page, limit, order, carType, search } = req.query;
+    const inquiry: CarInquiry = {
+      order: String(order),
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      carType: carType ? (carType as CarType) : undefined,
+      search: search ? String(search) : undefined,
+    };
+
+    const result = await carService.getDiscountedCars(inquiry);
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("Error, getDiscountedCars:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standart.code).json(Errors.standart);
+  }
+};
+
+carController.getTopViewedCars = async (req: Request, res: Response) => {
+  try {
+    const { limit } = req.query;
+    const lim = Number(limit) > 0 ? Number(limit) : 10;
+    const result = await carService.getTopViewedCars(lim);
+    res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log("Error, getTopViewedCars:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standart.code).json(Errors.standart);
+  }
+};
+
+carController.getCarsByBrand = async (req: Request, res: Response) => {
+  try {
+    const brandId = req.params.brandId;
+    const { page, limit, order, carType, search } = req.query;
+    const inquiry: CarInquiry = {
+      order: String(order),
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      carType: carType ? (carType as CarType) : undefined,
+      search: search ? String(search) : undefined,
+    };
+
+    const result = await carService.getCarsByBrand(inquiry, brandId);
+    res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log("Error, getCarsByBrand:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standart.code).json(Errors.standart);
   }
 };
 
@@ -178,13 +242,29 @@ carController.getupdateChosenCar = async (req: Request, res: Response) => {
   try {
     console.log("getupdateChosenCar");
     const id = req.params.id;
-    // legacy: previously rendered a dedicated edit page. For SPA modal edit we return JSON
+    // Render an admin edit page for the car so admins can edit fields (including discount)
     const result = await carService.getCarById(id);
-    res.status(200).json({ data: result });
+    // fetch brands to populate brand select
+    const brands = await BrandModel.find().exec();
+    return res.render('car-edit', { car: result, brands });
   } catch (err) {
     console.log("Error, getupdateChosenCar:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standart.code).json(Errors.standart);
+  }
+};
+
+// Return car data as JSON for admin edit modal (no status filter)
+carController.getCarData = async (req: Request, res: Response) => {
+  try {
+    console.log('getCarData');
+    const id = req.params.id;
+    const result = await carService.getCarById(id);
+    return res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log('Error, getCarData:', err);
+    if (err instanceof Errors) return res.status(err.code).json(err);
+    return res.status(Errors.standart.code).json(Errors.standart);
   }
 };
 

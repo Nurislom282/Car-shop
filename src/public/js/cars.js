@@ -1,7 +1,8 @@
 
         // entrance animations
         anime({ targets: '.glass-header', translateY: [-18, 0], opacity: [0, 1], duration: 700, easing: 'easeOutExpo' });
-        anime({ targets: '.bg-blobs .blob', translateY: [-30, 30], translateX: [-10, 10], loop: true, direction: 'alternate', duration: 9000, easing: 'easeInOutSine', delay: anime.stagger(300) });
+  // softer, lower-amplitude motion for background blobs to reduce visual noise
+  anime({ targets: '.bg-blobs .blob', translateY: [-10, 10], translateX: [-4, 4], loop: true, direction: 'alternate', duration: 12000, easing: 'easeInOutSine', delay: anime.stagger(400) });
         anime({ targets: '.car-card', translateY: [18, 0], opacity: [0, 1], delay: anime.stagger(80), duration: 650, easing: 'easeOutCubic' });
 
         // hover tilt effect for cards (subtle)
@@ -48,44 +49,50 @@
           });
         });
 
-        // search filter (client-side)
+        // search filter: submit page reload with query param on Enter or blur
         const search = document.getElementById('searchInput');
+        function buildUrlFromParams(params){
+          const keys = Object.keys(params).filter(k=>params[k] !== undefined && params[k] !== null && params[k] !== '');
+          if (!keys.length) return '/admin/car/all';
+          return '/admin/car/all?' + keys.map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+        }
         if (search) {
-          search.addEventListener('input', () => {
-            const q = search.value.toLowerCase();
-            document.querySelectorAll('.car-card').forEach(card => {
-              const name = card.querySelector('.p-name')?.textContent.toLowerCase() || '';
-              const brand = card.dataset.brand || '';
-              // respect any active brand selection
-              const activeBrand = document.querySelector('.brand-item.active')?.dataset.brand || '';
-              const brandMatch = !activeBrand || activeBrand === '' || activeBrand === brand;
-              card.style.display = (name.includes(q) && brandMatch) ? '' : 'none';
-            });
+          // submit when user presses Enter
+          search.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+              ev.preventDefault();
+              const q = search.value.trim();
+              const params = Object.fromEntries(new URLSearchParams(window.location.search));
+              params.search = q;
+              params.page = 1;
+              location.href = buildUrlFromParams(params);
+            }
+          });
+          // optional: on blur also apply
+          search.addEventListener('blur', () => {
+            const q = search.value.trim();
+            const params = Object.fromEntries(new URLSearchParams(window.location.search));
+            params.search = q;
+            params.page = 1;
+            // don't navigate if unchanged
+            const target = buildUrlFromParams(params);
+            if (target !== window.location.pathname + window.location.search) location.href = target;
           });
         }
 
-        // brand filter (client-side)
+        // brand filter (client-side) — buttons have server-side active class; clicking navigates preserving params
         const brandItems = Array.from(document.querySelectorAll('.brand-item'));
         if (brandItems.length) {
           brandItems.forEach(btn => {
             btn.addEventListener('click', (ev) => {
               ev.preventDefault();
-              // toggle active
-              brandItems.forEach(b=>b.classList.remove('active'));
-              btn.classList.add('active');
-              const selected = btn.dataset.brand || '';
-              const q = search ? search.value.toLowerCase() : '';
-              document.querySelectorAll('.car-card').forEach(card => {
-                const name = card.querySelector('.p-name')?.textContent.toLowerCase() || '';
-                const brand = card.dataset.brand || '';
-                const brandMatch = !selected || selected === '' || selected === brand;
-                card.style.display = (name.includes(q) && brandMatch) ? '' : 'none';
-              });
+              // navigate to server with brand param, preserving other params
+              const params = Object.fromEntries(new URLSearchParams(window.location.search));
+              params.brand = btn.dataset.brand || '';
+              params.page = 1;
+              location.href = buildUrlFromParams(params);
             });
           });
-          // set 'All' active by default if present
-          const allBtn = brandItems.find(b => b.dataset.brand === '');
-          if (allBtn) { allBtn.classList.add('active'); }
         }
 
         // motion toggle (reduce motion)
@@ -123,6 +130,52 @@
           } else {
             brandImgPlaceholder.src = '/img/upload.svg';
           }
+        });
+
+        // Brand edit/delete handlers
+        document.querySelectorAll('.btn-delete-brand').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (!confirm('Delete this brand? This will fail if any car uses this brand.')) return;
+            const id = btn.dataset.id;
+            fetch('/admin/brand/' + id + '/delete', { method: 'POST', credentials: 'same-origin' })
+              .then(async (r) => {
+                if (r.ok) return location.reload();
+                let body = {};
+                try { body = await r.json(); } catch (e) {}
+                alert(body.message || 'Delete failed');
+              })
+              .catch(() => alert('Network error'));
+          });
+        });
+
+        document.querySelectorAll('.btn-edit-brand').forEach(btn => {
+          btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const id = btn.dataset.id;
+            if (!id) return;
+            // fetch brand data and populate newBrandModal for editing
+            fetch('/admin/brand/' + id, { method: 'GET', credentials: 'same-origin' })
+              .then(r => {
+                if (!r.ok) throw new Error('Network');
+                return r.json();
+              })
+              .then(json => {
+                const b = json && json.data ? json.data : json;
+                if (!b) { alert('Brand not found'); return; }
+                // set form action to edit endpoint and attach hidden id
+                const form = newBrandModal.querySelector('form');
+                form.setAttribute('action', '/admin/brand/edit');
+                let hidden = form.querySelector('input[name="_id"]');
+                if (!hidden) { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = '_id'; form.appendChild(hidden); }
+                hidden.value = b._id;
+                // populate name and image placeholder
+                try { if (form.elements['BrandName']) form.elements['BrandName'].value = b.BrandName || ''; } catch(e){}
+                try { const img = b.BrandImages && b.BrandImages[0] ? ('/uploads/' + String(b.BrandImages[0]).replace(/^\/+/, '').replace(/^uploads\//,'')) : '/img/upload.svg'; brandImgPlaceholder.src = img; } catch(e){}
+                // open modal
+                backdrop.hidden = false; backdrop.style.display = 'block'; newBrandModal.classList.add('show'); newBrandModal.setAttribute('aria-hidden', 'false');
+              })
+              .catch(() => alert('Failed to load brand data'));
+          });
         });
 
         // Image preview for each file input in the new-car modal
@@ -243,7 +296,8 @@
               const href = a.getAttribute('href');
               const id = href.split('/').pop();
               if (!id) return;
-              fetch('/admin/car/' + id, { method: 'GET', credentials: 'same-origin' })
+              // call admin JSON endpoint which returns car data for editing
+              fetch('/admin/car/' + id + '/data', { method: 'GET', credentials: 'same-origin' })
                 .then(r => {
                   if (!r.ok) throw new Error('Network');
                   return r.json();

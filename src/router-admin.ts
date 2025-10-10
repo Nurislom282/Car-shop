@@ -34,6 +34,12 @@ routerAdmin.get(
   shopController.verifyShop,
   carController.getupdateChosenCar
 );
+// Admin JSON endpoint for edit modal to fetch car data (returns JSON)
+routerAdmin.get(
+  "/car/:id/data",
+  shopController.verifyShop,
+  carController.getCarData
+);
 routerAdmin.post(
   "/car/create",
   shopController.verifyShop,
@@ -45,6 +51,24 @@ routerAdmin.post(
   shopController.verifyShop,
   makeUploader("members").single("brandImage"),
   brandController.createBrand
+);
+routerAdmin.post(
+  "/brand/edit",
+  shopController.verifyShop,
+  makeUploader("members").single("brandImage"),
+  brandController.updateBrand
+);
+// fetch brand data for edit modal
+routerAdmin.get(
+  "/brand/:id",
+  shopController.verifyShop,
+  brandController.getBrand
+);
+// delete brand (admin)
+routerAdmin.post(
+  "/brand/:id/delete",
+  shopController.verifyShop,
+  brandController.deleteBrand
 );
 routerAdmin.post(
   "/car/:id",

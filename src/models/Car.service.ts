@@ -46,6 +46,41 @@ class CarService {
         return result;
     }
 
+    /**
+     * Return cars that have a discount (carDeiscount > 0).
+     * Supports same inquiry params as getCars (page, limit, order, carType, search)
+     */
+    public async getDiscountedCars(inquery: CarInquiry): Promise<Car[]> {
+        const match: T = { carStatus: CarStatus.PROCESS, carDeiscount: { $gt: 0 } };
+
+        if (inquery.carType)
+            match.carType = inquery.carType;
+
+        if (inquery.search)
+            match.carName = { $regex: new RegExp(inquery.search, "i") };
+
+        const sort: T =
+            inquery.order === "carDeiscount"
+                ? { [inquery.order]: 1 }
+                : { [inquery.order]: -1 };
+
+        const page = inquery.page && inquery.page > 0 ? inquery.page : 1;
+        const limit = inquery.limit && inquery.limit > 0 ? inquery.limit : 10;
+
+        const result = await this.carModel
+            .aggregate([
+                { $match: match },
+                { $sort: sort },
+                { $skip: (page * 1 - 1) * limit },
+                { $limit: limit * 1 },
+            ])
+            .exec();
+
+        if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+        return result;
+    }
+
     public async getCar(
         memberId: ObjectId | null,
         id: string
@@ -75,10 +110,11 @@ class CarService {
                 await this.viewService.insertMemberView(input);
 
                 //Insert Counts
-                result = this.carModel
+                // make sure to await the update so result contains the updated doc
+                result = await this.carModel
                     .findByIdAndUpdate(
                         carId,
-                        { $inc: { carViews: +1 } },
+                        { $inc: { carViews: 1 } },
                         { new: true }
                     )
                     .exec();
@@ -87,12 +123,84 @@ class CarService {
         return result;
     }
 
-    /* SSR */
-    public async getCarsSSR(): Promise<Car[]> {
-        //String => ObjectId
-        const result = await this.carModel.find().exec();
+    /* SSR - paginated server-side render helper
+     * Accepts an optional inquiry (page, limit, order, carType, search)
+     * Returns { data, total, page, limit, pages }
+     */
+    public async getCarsSSR(inquery?: CarInquiry): Promise<{ data: Car[]; total: number; page: number; limit: number; pages: number }> {
+        const page = inquery && inquery.page && inquery.page > 0 ? inquery.page : 1;
+        const limit = inquery && inquery.limit && inquery.limit > 0 ? inquery.limit : 12;
+
+        const match: T = {};
+        if (inquery?.carType) match.carType = inquery.carType;
+        if (inquery?.search) match.carName = { $regex: new RegExp(inquery.search, 'i') };
+        if (inquery?.brand) match.carBrand = inquery.brand;
+
+        // count total matching documents
+        const total = await this.carModel.countDocuments(match).exec();
+
+        const sort: T = {};
+        if (inquery && inquery.order) {
+            sort[inquery.order] = inquery.order === 'carDeiscount' ? 1 : -1;
+        } else {
+            sort['createdAt'] = -1;
+        }
+
+        const data = await this.carModel
+            .find(match)
+            .sort(sort)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .exec();
+
+        const pages = Math.max(1, Math.ceil(total / limit));
+
+        return { data, total, page, limit, pages };
+    }
+
+    /**
+     * Return top viewed cars. `limit` controls number of returned cars.
+     */
+    public async getTopViewedCars(limit = 10): Promise<Car[]> {
+        const result = await this.carModel.find({ carStatus: CarStatus.PROCESS }).sort({ carViews: -1 }).limit(limit).exec();
         if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
-        console.log("result:", result);
+        return result;
+    }
+
+    /**
+     * Return cars filtered by brandId. Brand id should be a string that can be shaped into ObjectId.
+     */
+    public async getCarsByBrand(inquery: CarInquiry, brandId: string): Promise<Car[]> {
+        const match: T = { carStatus: CarStatus.PROCESS };
+
+        if (inquery.carType)
+            match.carType = inquery.carType;
+
+        if (inquery.search)
+            match.carName = { $regex: new RegExp(inquery.search, "i") };
+
+        // accept brandId as a direct string reference stored in carBrand
+        match.carBrand = brandId;
+
+        const sort: T =
+            inquery.order === "carDeiscount"
+                ? { [inquery.order]: 1 }
+                : { [inquery.order]: -1 };
+
+        const page = inquery.page && inquery.page > 0 ? inquery.page : 1;
+        const limit = inquery.limit && inquery.limit > 0 ? inquery.limit : 10;
+
+        const result = await this.carModel
+            .aggregate([
+                { $match: match },
+                { $sort: sort },
+                { $skip: (page * 1 - 1) * limit },
+                { $limit: limit * 1 },
+            ])
+            .exec();
+
+        if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
         return result;
     }
 

@@ -10,8 +10,9 @@ class ViewService {
   }
 
   public async checkViewExistence(input: ViewInput): Promise<View> {
+    // include viewGroup in the check to avoid cross-group collisions (e.g., brand vs car)
     return await this.viewModel
-      .findOne({ memberId: input.memberId, viewRefId: input.viewRefId })
+      .findOne({ memberId: input.memberId, viewRefId: input.viewRefId, viewGroup: input.viewGroup })
       .exec();
   }
 

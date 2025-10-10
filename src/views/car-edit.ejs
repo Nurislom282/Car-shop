@@ -1,0 +1,79 @@
+<%- include('includes/header') %>
+
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/cars.css">
+
+    <body>
+        <div class="page-root">
+            <main class="container" style="max-width:800px;margin-top:40px">
+                <section class="glass-card" style="padding:20px">
+                    <h2>Edit Car</h2>
+                    <form action="/admin/car/<%= car._id %>" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="_id" value="<%= car._id %>" />
+
+                        <label>Car Name</label>
+                        <input name="carName" required value="<%= car.carName %>" />
+
+                        <div class="row">
+                            <div>
+                                <label>Brand</label>
+                                <select name="carBrand" required>
+                                    <option value="">-- Select Brand --</option>
+                                    <% if (brands && brands.length) { %>
+                                        <% brands.forEach(function(b){ %>
+                                            <option value="<%= b._id %>" <%=String(b._id)===String(car.carBrand)
+                                                ? 'selected' : '' %>><%= b.BrandName %>
+                                            </option>
+                                            <% }) %>
+                                                <% } %>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Type</label>
+                                <select name="carType" required>
+                                    <option value="SEDAN" <%=car.carType==='SEDAN' ? 'selected' : '' %>>SEDAN</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div>
+                                <label>Price</label>
+                                <input type="number" name="carPrice" required value="<%= car.carPrice %>" />
+                            </div>
+                            <div>
+                                <label>Left Count</label>
+                                <input type="number" name="carLeftCount" required value="<%= car.carLeftCount %>" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div>
+                                <label>Discount (%)</label>
+                                <input type="number" name="carDeiscount" min="0" max="100"
+                                    value="<%= car.carDeiscount || 0 %>" />
+                            </div>
+                            <div>
+                                <label>Year</label>
+                                <input type="date" name="carYear" required
+                                    value="<%= new Date(car.carYear).toISOString().substr(0,10) %>" />
+                            </div>
+                        </div>
+
+                        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                            <label>Replace Images (optional)</label>
+                            <input type="file" name="carImage" accept="image/*" multiple />
+                        </div>
+
+                        <div style="margin-top:16px;display:flex;gap:8px">
+                            <button class="btn btn-ghost" type="button"
+                                onclick="window.location.href='/admin/car/all'">Cancel</button>
+                            <button class="btn btn-primary" type="submit">Save</button>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
+    </body>
+
+    <%- include('includes/footer') %>

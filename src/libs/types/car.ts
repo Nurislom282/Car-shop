@@ -29,6 +29,7 @@ export interface CarInquiry {
   page: number;
   limit: number;
   carType?: CarType;
+  brand?: string;
   search?: string;
 }
 
