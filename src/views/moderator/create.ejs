@@ -20,10 +20,10 @@
                         </svg>
                     </div>
                     <h1>Join as Moderator</h1>
-                    <p>Create your account and start managing events</p>
+                    <p>Create moderator account and start managing events</p>
                 </div>
 
-                <form onsubmit="return validateSignupForm()" action="/moderator/signup" method="POST"
+                <form onsubmit="return validateSignupForm()" action="/moderator/create" method="POST"
                     enctype="multipart/form-data" class="signup-form-moder">
                     <div class="form-grid-moder">
                         <div class="input-group-glass-moder">
@@ -117,7 +117,7 @@
                 </form>
 
                 <div class="signup-footer-moder">
-                    <p>Already have an account? <a href="/admin/login">Login in</a></p>
+                    <p>Already have an account? <a href="/moderator/login">Login in</a></p>
                     <a href="/admin" class="back-link-moder">← Back to Home</a>
                 </div>
             </div>

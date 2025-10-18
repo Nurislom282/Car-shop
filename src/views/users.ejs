@@ -290,7 +290,8 @@
   <a href="/admin/user/all?type=users"
     class="filter-link <%= (typeof filterType === 'undefined' || filterType==='users') ? 'active' : '' %>">Users</a>
   <a href="/admin/user/all?type=moderators"
-    class="filter-link <%= (filterType==='moderators') ? 'active' : '' %>">Moderators</a>
+    class="filter-link <%= (filterType==='moderators') ? 'active' : '' %>">|Moderators|</a>
+    <a href="/moderator/create" class="filter-link">|Create Moderator|</a>
 </div>
 
 <div class="users-grid">

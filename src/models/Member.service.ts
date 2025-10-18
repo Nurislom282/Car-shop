@@ -150,23 +150,13 @@ class MemberService {
   }
 
   public async processSignupModer(input: MemberInput): Promise<Member> {
-    const exist = await this.memberModel
-      .findOne({ memberType: MemberType.MODERATOR })
-      .exec();
-
     console.log("before:", input.memberPassword);
     const salt = await bcrypt.genSalt();
     input.memberPassword = await bcrypt.hash(input.memberPassword, salt);
     console.log("after:", input.memberPassword);
-
     try {
       const result = await this.memberModel.create(input);
-
-      // const tempResult = new this.memberModel(input);
-      // const result = await tempResult.save();
-
       result.memberPassword = "";
-
       return result;
     } catch (err) {
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);

@@ -11,9 +11,9 @@ routerModer
   .post("/login", moderatorController.processLogin);
 
 routerModer
-  .get("/signup", moderatorController.getSignup)
+  .get("/create", moderatorController.CreateModerator)
   .post(
-    "/signup",
+    "/create",
     makeUploader("members").single("memberImage"),
     moderatorController.processSignup
   );

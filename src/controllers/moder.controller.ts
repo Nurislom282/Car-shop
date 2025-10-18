@@ -32,10 +32,10 @@ moderatorController.getLogin = (req: Request, res: Response) => {
   }
 };
 
-moderatorController.getSignup = (req: Request, res: Response) => {
+moderatorController.CreateModerator = (req: Request, res: Response) => {
   try {
     console.log("getSignup");
-    res.render("moderator/signup");
+    res.render("moderator/create");
   } catch (err) {
     console.log("Error, moderator.getSignup:", err);
     res.redirect("/moderator");
@@ -59,14 +59,14 @@ moderatorController.processSignup = async (
 
     req.session.member = result;
     req.session.save(function () {
-      res.redirect("/moderator/event/all");
+      res.redirect("/admin/user/all?type=moderators");
     });
   } catch (err) {
     console.log("Error, moderator.processSignup:", err);
     const message =
       err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
     res.send(
-      `<script> alert("Hi, ${message}"); window.location.replace('/moderator/signup') </script>`
+      `<script> alert("Hi, created"); window.location.replace('/admin/user/all?type=moderators') </script>`
     );
   }
 };
