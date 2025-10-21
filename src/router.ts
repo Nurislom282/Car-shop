@@ -33,15 +33,16 @@ router.get("/member/top-users", membersController.getTopUsers);
 router.get("/car/all", carController.getCars);
 router.get("/car/discounted", carController.getDiscountedCars);
 router.get("/car/top-viewed", carController.getTopViewedCars);
+
+/** Brand **/
+router.get("/car/brand/:brandId", carController.getCarsByBrand);
+router.get("/car/brands", carController.getCarsByBrands);
+
 router.get(
   "/car/:id",
   membersController.retrieveAuth,
   carController.getCar
 );
-
-
-/** Brand **/
-router.get("/car/brand/:brandId", carController.getCarsByBrand);
 router.get("/brand/top", brandController.getTopBrands);
 
 /** Order **/

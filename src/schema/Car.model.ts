@@ -91,7 +91,7 @@ const carSchema = new Schema(
 
     carBrand: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Brand",
+      ref: "CarBrand",
       required: true,
     }
   },

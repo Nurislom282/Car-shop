@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Event</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .edit-event-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 32px;
+    }
+    .edit-event-container h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .event-images {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .event-images img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #eee;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="edit-event-container">
+    <h2>Edit Event</h2>
+    <form action="/moderator/event/<%= event._id %>" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="eventTitle">Title</label>
+        <input type="text" id="eventTitle" name="eventTitle" value="<%= event.eventTitle %>" required>
+      </div>
+      <div class="form-group">
+        <label for="eventDesc">Description</label>
+        <textarea id="eventDesc" name="eventDesc" rows="3"><%= event.eventDesc %></textarea>
+      </div>
+      <div class="form-group">
+        <label for="eventDate">Date</label>
+        <input type="date" id="eventDate" name="eventDate" value="<%= event.eventDate ? event.eventDate.toISOString().slice(0,10) : '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="eventType">Type</label>
+        <select id="eventType" name="eventType" required>
+          <option value="discount" <%= event.eventType === 'discount' ? 'selected' : '' %>>Discount</option>
+          <option value="newArrival" <%= event.eventType === 'newArrival' ? 'selected' : '' %>>New Arrival</option>
+          <option value="clearance" <%= event.eventType === 'clearance' ? 'selected' : '' %>>Clearance</option>
+          <option value="specialOffer" <%= event.eventType === 'specialOffer' ? 'selected' : '' %>>Special Offer</option>
+          <option value="Conference" <%= event.eventType === 'Conference' ? 'selected' : '' %>>Conference</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="eventLocation">Location</label>
+        <input type="text" id="eventLocation" name="eventLocation" value="<%= event.eventLocation %>">
+      </div>
+      <div class="form-group">
+        <label>Current Images</label>
+        <div class="event-images">
+          <% if (event.eventImage && event.eventImage.length) { %>
+            <% event.eventImage.forEach(function(img) { %>
+              <img src="/<%= img %>" alt="Event Image">
+            <% }); %>
+          <% } else { %>
+            <span>No images uploaded.</span>
+          <% } %>
+        </div>
+        <label for="eventImage">Upload New Images</label>
+        <input type="file" id="eventImage" name="eventImage" multiple accept="image/*">
+      </div>
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+</body>
+</html>

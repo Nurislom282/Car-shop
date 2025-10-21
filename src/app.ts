@@ -59,7 +59,6 @@ app.set("view engine", "ejs");
 /** 4-ROUTERS **/
 app.use("/admin", routerAdmin); // SSR: EJS
 app.use("/moderator", routerModer); //SSR: EJS
-// app.use("/", router); // SPA: REACT (REST API)
-// app.use("/", router); // public routes (rendering simple pages / API)
+app.use("/", router); // SPA: REACT (REST API)
 
 export default app;

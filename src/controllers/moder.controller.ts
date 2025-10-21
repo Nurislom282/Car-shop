@@ -176,9 +176,24 @@ moderatorController.updateChosenEvent = async (req: Request, res: Response) => {
     console.log("updateChosenEvent");
     const id = req.params.id;
     const result = await eventService.updateChosenEvent(id, req.body);
-    res.status(HttpCode.OK).json({ data: result });
+    res.redirect('/moderator/event/all');
   } catch (err) {
     console.log("Error, updateChosenEvent:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standart.code).json(Errors.standart);
+  }
+};
+
+moderatorController.deleteChosenEvent = async (req: Request, res: Response) => {
+  try {
+    console.log("deleteChosenEvent");
+    const id = req.params.id;
+    const result = await eventService.deleteEvent(id);
+    res.send(
+      `<script> alert("Sucessful deletion!"); window.location.replace('/moderator/event/all') </script>`
+    );
+  } catch (err) {
+    console.log("Error, deleteChosenEvent:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standart.code).json(Errors.standart);
   }
@@ -216,5 +231,35 @@ moderatorController.verifyModerator = (
     );
   }
 };
+
+// Render event edit page
+moderatorController.editEventPage = async (req: Request, res: Response) => {
+  if (req.method === "GET") {
+    try {
+      const eventId = req.params.id;
+      const event = await eventService.getEvent(null, eventId);
+      res.render("moderator/edit", { event });
+    } catch (err) {
+      console.log("Error, editEventPage GET:", err);
+      res.redirect("/moderator/event/all");
+    }
+  } else if (req.method === "POST") {
+    try {
+      const eventId = req.params.id;
+      // If you support file uploads, handle them here
+      let updatedData = req.body;
+      if (Array.isArray(req.files) && req.files.length) {
+        updatedData.eventImage = req.files.map((file: any) => file.path.replace(/\\/g, "/"));
+      }
+      await eventService.updateChosenEvent(eventId, updatedData);
+      res.redirect("/moderator/event/all");
+    } catch (err) {
+      console.log("Error, editEventPage POST:", err);
+      res.redirect("/moderator/event/all");
+    }
+  } else {
+    res.status(405).send("Method Not Allowed");
+  }
+}
 
 export default moderatorController;

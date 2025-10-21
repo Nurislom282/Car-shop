@@ -1,9 +1,49 @@
 
         // entrance animations
         anime({ targets: '.glass-header', translateY: [-18, 0], opacity: [0, 1], duration: 700, easing: 'easeOutExpo' });
-  // softer, lower-amplitude motion for background blobs to reduce visual noise
-  anime({ targets: '.bg-blobs .blob', translateY: [-10, 10], translateX: [-4, 4], loop: true, direction: 'alternate', duration: 12000, easing: 'easeInOutSine', delay: anime.stagger(400) });
+        // softer, lower-amplitude motion for background blobs to reduce visual noise
+        anime({ targets: '.bg-blobs .blob', translateY: [-10, 10], translateX: [-4, 4], loop: true, direction: 'alternate', duration: 12000, easing: 'easeInOutSine', delay: anime.stagger(400) });
         anime({ targets: '.car-card', translateY: [18, 0], opacity: [0, 1], delay: anime.stagger(80), duration: 650, easing: 'easeOutCubic' });
+
+        // Status change handler
+        document.querySelectorAll('.new-car-status').forEach(select => {
+          select.addEventListener('change', async (event) => {
+            const carId = select.dataset.id;
+            const newStatus = select.value;
+            
+            try {
+              const response = await fetch(`/admin/car/${carId}/status`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  _id: carId,
+                  carStatus: newStatus
+                }),
+                credentials: 'same-origin'
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to update status');
+              }
+
+              // Optionally reload the page to reflect changes
+              location.reload();
+            } catch (error) {
+              console.error('Error updating car status:', error);
+              alert('Failed to update car status. Please try again.');
+              // Revert the select to its previous value
+              select.value = select.getAttribute('data-previous-value') || 'PROCESS';
+            }
+
+            // Store the current value as previous for potential rollback
+            select.setAttribute('data-previous-value', select.value);
+          });
+          
+          // Store initial value
+          select.setAttribute('data-previous-value', select.value);
+        });
 
         // hover tilt effect for cards (subtle)
         document.querySelectorAll('.car-card').forEach(card => {

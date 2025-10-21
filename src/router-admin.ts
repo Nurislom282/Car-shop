@@ -85,6 +85,13 @@ routerAdmin.post(
   carController.deleteCar
 );
 
+// Status change endpoint
+routerAdmin.post(
+  "/car/:id/status",
+  shopController.verifyShop,
+  carController.updateChosenCar
+);
+
 /* USER */
 routerAdmin.get(
   "/user/all",

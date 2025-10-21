@@ -179,13 +179,70 @@ class CarService {
         if (inquery.search)
             match.carName = { $regex: new RegExp(inquery.search, "i") };
 
-        // accept brandId as a direct string reference stored in carBrand
-        match.carBrand = brandId;
+        // convert brandId string to ObjectId to match against carBrand (stored as ObjectId)
+        try {
+            match.carBrand = shapeIntoMongooseObjectId(brandId);
+        } catch (e) {
+            // if conversion fails, keep brandId as-is so query will return no results
+            match.carBrand = brandId as any;
+        }
 
         const sort: T =
             inquery.order === "carDeiscount"
                 ? { [inquery.order]: 1 }
                 : { [inquery.order]: -1 };
+
+        const page = inquery.page && inquery.page > 0 ? inquery.page : 1;
+        const limit = inquery.limit && inquery.limit > 0 ? inquery.limit : 10;
+
+        const result = await this.carModel
+            .aggregate([
+                { $match: match },
+                { $sort: sort },
+                { $skip: (page * 1 - 1) * limit },
+                { $limit: limit * 1 },
+            ])
+            .exec();
+
+        if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+        return result;
+    }
+
+    /**
+     * Return cars filtered by multiple brandIds. Accepts sorting and pagination.
+     */
+    public async getCarsByBrands(inquery: CarInquiry, brandIds: string[]): Promise<Car[]> {
+        const match: T = { carStatus: CarStatus.PROCESS };
+
+        if (inquery.carType)
+            match.carType = inquery.carType;
+
+        if (inquery.search)
+            match.carName = { $regex: new RegExp(inquery.search, "i") };
+
+        // convert brandIds strings to ObjectId to match against carBrand (stored as ObjectId)
+        const shapedIds: any[] = [];
+        for (const id of brandIds) {
+            try {
+                shapedIds.push(shapeIntoMongooseObjectId(id));
+            } catch (e) {
+                // ignore invalid ids
+            }
+        }
+        if (shapedIds.length > 0) {
+            match.carBrand = { $in: shapedIds } as any;
+        } else {
+            // if no valid ids provided, force empty result efficiently
+            return [] as unknown as Car[];
+        }
+
+        const sort: T =
+            inquery.order === "carDeiscount"
+                ? { [inquery.order]: 1 }
+                : inquery.order
+                    ? { [inquery.order]: -1 }
+                    : { createdAt: -1 };
 
         const page = inquery.page && inquery.page > 0 ? inquery.page : 1;
         const limit = inquery.limit && inquery.limit > 0 ? inquery.limit : 10;
@@ -244,7 +301,11 @@ class CarService {
         //String => ObjectId
         id = shapeIntoMongooseObjectId(id);
         const result = await this.carModel
-            .findOneAndUpdate({ _id: id }, input, { new: true })
+            .findOneAndUpdate(
+                { _id: id },
+                { $set: { ...input } },
+                { new: true, runValidators: true }
+            )
             .exec();
         if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
         console.log("result:", result);
@@ -257,8 +318,13 @@ class CarService {
     ): Promise<Car> {
         //String => ObjectId
         id = shapeIntoMongooseObjectId(id);
+        // Change to update status instead of actual delete
         const result = await this.carModel
-            .findByIdAndDelete(id)
+            .findByIdAndUpdate(
+                id,
+                { $set: { carStatus: input.carStatus } },
+                { new: true, runValidators: true }
+            )
             .exec();
         if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
         console.log("result:", result);

@@ -117,5 +117,16 @@ class EventService {
         console.log("result:", result);
         return result;
     }
+
+    public async deleteEvent(id: string): Promise<Event> {
+        //String => ObjectId
+        id = shapeIntoMongooseObjectId(id);
+        const result = await this.eventModel
+            .findOneAndDelete({ _id: id })
+            .exec();
+        if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+        console.log("result:", result);
+        return result;
+    }
 }
 export default EventService;

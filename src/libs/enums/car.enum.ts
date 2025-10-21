@@ -1,15 +1,35 @@
 export enum CarType {
-  SEDAN = "SEDAN"
+  SEDAN = "SEDAN",
+  SUV = "SUV",
+  HATCHBACK = "HATCHBACK",
+  COUPE = "COUPE",
+  CONVERTIBLE = "CONVERTIBLE",
+  WAGON = "WAGON",
+  VAN = "VAN",
+  MINIVAN = "MINIVAN",
+  PICKUP = "PICKUP",
+  SPORT = "SPORT",
+  LUXURY = "LUXURY"
 }
 
 export enum CarTransmission {
   MANUAL = "MANUAL",
-  AUTO = "AUTO"
+  AUTO = "AUTO",
+  CVT = "CVT",
+  DCT = "DCT",
+  SEMI_AUTO = "SEMI_AUTO"
 }
 
 export enum CarFuel {
   GREENGAS = "GREENGAS",
-  DISEL = "DISEL"
+  DIESEL = "DIESEL",
+  PETROL = "PETROL",
+  ELECTRIC = "ELECTRIC",
+  HYBRID = "HYBRID",
+  PLUG_IN_HYBRID = "PLUG_IN_HYBRID",
+  CNG = "CNG",
+  LPG = "LPG",
+  HYDROGEN = "HYDROGEN"
 }
 
 export enum CarState {

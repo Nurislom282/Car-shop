@@ -14,20 +14,18 @@ const carController: T = {};
 carController.getCars = async (req: Request, res: Response) => {
   try {
     console.log("getCars");
-    const { page, limit, order, carType, search } = req.query;
+    let { page, limit, order, carType, search } = req.query;
+    // Set defaults if not provided or invalid
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
     const inquiry: CarInquiry = {
-      order: String(order), //property
-      page: Number(page), //default 1
-      limit: Number(limit), //default 10
+      order: order ? String(order) : "_id", // default sort by _id
+      page: !isNaN(pageNum) && pageNum > 0 ? pageNum : 1,
+      limit: !isNaN(limitNum) && limitNum > 0 ? limitNum : 10,
       carType: carType ? (carType as CarType) : undefined,
       search: search ? String(search) : undefined,
     };
     console.log(inquiry);
-    if (carType) {
-      inquiry.carType = carType as CarType;
-    }
-    if (search) inquiry.search = String(search);
-
     const result = await carService.getCars(inquiry);
     console.log(result);
     res.status(HttpCode.OK).json(result);
@@ -169,9 +167,13 @@ carController.getTopViewedCars = async (req: Request, res: Response) => {
 carController.getCarsByBrand = async (req: Request, res: Response) => {
   try {
     const brandId = req.params.brandId;
+    // basic ObjectId format validation to avoid cast errors
+    if (!/^[a-fA-F0-9]{24}$/.test(String(brandId))) {
+      return res.status(HttpCode.BAD_REQUEST).json({ message: 'Invalid brandId format' });
+    }
     const { page, limit, order, carType, search } = req.query;
     const inquiry: CarInquiry = {
-      order: String(order),
+      order: order ? String(order) : "_id",
       page: Number(page) || 1,
       limit: Number(limit) || 10,
       carType: carType ? (carType as CarType) : undefined,
@@ -182,6 +184,38 @@ carController.getCarsByBrand = async (req: Request, res: Response) => {
     res.status(HttpCode.OK).json({ data: result });
   } catch (err) {
     console.log("Error, getCarsByBrand:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standart.code).json(Errors.standart);
+  }
+};
+
+carController.getCarsByBrands = async (req: Request, res: Response) => {
+  try {
+    // Expect comma-separated brandIds in query: ?brandIds=a,b,c
+    const brandIdsRaw = String(req.query.brandIds || "").trim();
+    if (!brandIdsRaw) {
+      return res.status(HttpCode.BAD_REQUEST).json({ message: 'brandIds is required' });
+    }
+    const brandIds = brandIdsRaw.split(',').map(s => s.trim()).filter(Boolean);
+    // Basic hex24 validation; we'll further shape to ObjectId in service
+    const valid = brandIds.filter(id => /^[a-fA-F0-9]{24}$/.test(id));
+    if (valid.length === 0) {
+      return res.status(HttpCode.BAD_REQUEST).json({ message: 'No valid brandIds provided' });
+    }
+
+    const { page, limit, order, carType, search } = req.query;
+    const inquiry: CarInquiry = {
+      order: order ? String(order) : "_id",
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      carType: carType ? (carType as CarType) : undefined,
+      search: search ? String(search) : undefined,
+    };
+
+    const result = await carService.getCarsByBrands(inquiry, valid);
+    res.status(HttpCode.OK).json({ data: result });
+  } catch (err) {
+    console.log("Error, getCarsByBrands:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standart.code).json(Errors.standart);
   }

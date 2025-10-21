@@ -38,4 +38,15 @@ routerModer.post(
   moderatorController.verifyModerator,
   moderatorController.updateChosenEvent
 );
+
+routerModer.post(
+  "/event/delete/:id",
+  moderatorController.verifyModerator,
+  moderatorController.deleteChosenEvent
+);
+routerModer.get(
+  "/event/edit/:id",
+  moderatorController.verifyModerator,
+  moderatorController.editEventPage
+);
 export default routerModer;

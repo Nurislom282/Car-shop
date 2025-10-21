@@ -31,7 +31,45 @@
                             <div>
                                 <label>Type</label>
                                 <select name="carType" required>
-                                    <option value="SEDAN" <%=car.carType==='SEDAN' ? 'selected' : '' %>>SEDAN</option>
+                                    <option value="SEDAN" <%=car.carType==='SEDAN' ? 'selected' : '' %>>Sedan</option>
+                                    <option value="SUV" <%=car.carType==='SUV' ? 'selected' : '' %>>SUV</option>
+                                    <option value="HATCHBACK" <%=car.carType==='HATCHBACK' ? 'selected' : '' %>>Hatchback</option>
+                                    <option value="COUPE" <%=car.carType==='COUPE' ? 'selected' : '' %>>Coupe</option>
+                                    <option value="CONVERTIBLE" <%=car.carType==='CONVERTIBLE' ? 'selected' : '' %>>Convertible</option>
+                                    <option value="WAGON" <%=car.carType==='WAGON' ? 'selected' : '' %>>Wagon</option>
+                                    <option value="VAN" <%=car.carType==='VAN' ? 'selected' : '' %>>Van</option>
+                                    <option value="MINIVAN" <%=car.carType==='MINIVAN' ? 'selected' : '' %>>Minivan</option>
+                                    <option value="PICKUP" <%=car.carType==='PICKUP' ? 'selected' : '' %>>Pickup</option>
+                                    <option value="SPORT" <%=car.carType==='SPORT' ? 'selected' : '' %>>Sport</option>
+                                    <option value="LUXURY" <%=car.carType==='LUXURY' ? 'selected' : '' %>>Luxury</option>
+                                    </select>
+                                    </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div>
+                                            <label>Transmission</label>
+                                            <select name="carTransmission" required>
+                                                <option value="MANUAL" <%=car.carTransmission==='MANUAL' ? 'selected' : '' %>>Manual</option>
+                                                <option value="AUTO" <%=car.carTransmission==='AUTO' ? 'selected' : '' %>>Automatic</option>
+                                                <option value="CVT" <%=car.carTransmission==='CVT' ? 'selected' : '' %>>CVT</option>
+                                                <option value="DCT" <%=car.carTransmission==='DCT' ? 'selected' : '' %>>Dual-Clutch</option>
+                                                <option value="SEMI_AUTO" <%=car.carTransmission==='SEMI_AUTO' ? 'selected' : '' %>>Semi-Automatic</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label>Fuel Type</label>
+                                            <select name="carFuel" required>
+                                                <option value="GREENGAS" <%=car.carFuel==='GREENGAS' ? 'selected' : '' %>>Green Gas</option>
+                                                <option value="DIESEL" <%=car.carFuel==='DIESEL' ? 'selected' : '' %>>Diesel</option>
+                                                <option value="PETROL" <%=car.carFuel==='PETROL' ? 'selected' : '' %>>Petrol</option>
+                                                <option value="ELECTRIC" <%=car.carFuel==='ELECTRIC' ? 'selected' : '' %>>Electric</option>
+                                                <option value="HYBRID" <%=car.carFuel==='HYBRID' ? 'selected' : '' %>>Hybrid</option>
+                                                <option value="PLUG_IN_HYBRID" <%=car.carFuel==='PLUG_IN_HYBRID' ? 'selected' : '' %>>Plug-in Hybrid
+                                                </option>
+                                                <option value="CNG" <%=car.carFuel==='CNG' ? 'selected' : '' %>>CNG</option>
+                                                <option value="LPG" <%=car.carFuel==='LPG' ? 'selected' : '' %>>LPG</option>
+                                                <option value="HYDROGEN" <%=car.carFuel==='HYDROGEN' ? 'selected' : '' %>>Hydrogen</option>
                                 </select>
                             </div>
                         </div>
