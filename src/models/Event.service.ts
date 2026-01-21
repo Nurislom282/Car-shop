@@ -1,7 +1,7 @@
 import { T } from "../libs/types/common";
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import Errors, { HttpCode, Message } from "../libs/Errors";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import ViewService from "./View.service";
 import { ViewInput } from "../libs/types/view";
 import { ViewGroup } from "../libs/enums/view.enum";
@@ -18,7 +18,8 @@ class EventService {
     }
     /* SPA */
     public async getEvents(inquery: EventQueryOptions): Promise<Event[]> {
-        const match: T = { eventStatus: eventStatus.active };
+        // Only return events that are marked as PROCESS (active)
+        const match: T = { eventStatus: eventStatus.PROCESS };
 
         if (inquery.eventType)
             match.eventType = inquery.eventType;
@@ -46,7 +47,7 @@ class EventService {
     }
 
     public async getEvent(
-        memberId: ObjectId | null,
+        memberId: Types.ObjectId | null,
         id: string
     ): Promise<Event> {
         const eventId = shapeIntoMongooseObjectId(id);
@@ -54,7 +55,7 @@ class EventService {
         let result = await this.eventModel
             .findOne({
                 _id: eventId,
-                eventStatus: eventStatus.active,
+                eventStatus: eventStatus.PROCESS,
             })
             .exec();
         if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
@@ -109,9 +110,9 @@ class EventService {
         input: EventUpdateInput
     ): Promise<Event> {
         //String => ObjectId
-        id = shapeIntoMongooseObjectId(id);
+        const eventId = shapeIntoMongooseObjectId(id);
         const result = await this.eventModel
-            .findOneAndUpdate({ _id: id }, input, { new: true })
+            .findOneAndUpdate({ _id: eventId }, input, { new: true })
             .exec();
         if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
         console.log("result:", result);
@@ -120,9 +121,9 @@ class EventService {
 
     public async deleteEvent(id: string): Promise<Event> {
         //String => ObjectId
-        id = shapeIntoMongooseObjectId(id);
+        const eventId = shapeIntoMongooseObjectId(id);
         const result = await this.eventModel
-            .findOneAndDelete({ _id: id })
+            .findOneAndDelete({ _id: eventId })
             .exec();
         if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
         console.log("result:", result);

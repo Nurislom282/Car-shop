@@ -9,7 +9,7 @@ import {
 } from "../libs/types/order";
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import Errors, { HttpCode, Message } from "../libs/Errors";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import MemberService from "./Member.service";
 import { OrderStatus } from "../libs/enums/order.enum";
 
@@ -53,13 +53,15 @@ class OrderService {
   }
 
   private async recordOrderItems(
-    orderId: ObjectId,
+    orderId: Types.ObjectId,
     input: OrderItemInput[]
   ): Promise<void> {
     const promisedList = input.map(async (item: OrderItemInput) => {
-      item.orderId = orderId;
-      item.productId = shapeIntoMongooseObjectId(item.productId);
-      await this.orderItemModel.create(item);
+      await this.orderItemModel.create({
+        ...item,
+        orderId: orderId,
+        productId: shapeIntoMongooseObjectId(item.productId),
+      });
       return "INSERTED";
     });
 

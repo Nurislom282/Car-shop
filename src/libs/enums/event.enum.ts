@@ -3,12 +3,13 @@ export enum eventType {
     newArrival = "newArrival",
     clearance = "clearance",
     specialOffer = "specialOffer",
-    Conference = "Conference"
+    Conference = "Conference",
+    conference = "conference",
 }
 
+// Use statuses that match the moderator UI (PROCESS = active, PAUSE = paused, DELETE = removed)
 export enum eventStatus {
-    active = "active",
-    inactive = "inactive",
-    upcoming = "upcoming",
-    expired = "expired"
+    PROCESS = "PROCESS",
+    PAUSE = "PAUSE",
+    DELETE = "DELETE",
 }

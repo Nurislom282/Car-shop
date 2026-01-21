@@ -176,7 +176,10 @@ moderatorController.updateChosenEvent = async (req: Request, res: Response) => {
     console.log("updateChosenEvent");
     const id = req.params.id;
     const result = await eventService.updateChosenEvent(id, req.body);
-    res.redirect('/moderator/event/all');
+    // If request is JSON (AJAX), return JSON; otherwise redirect for form POSTs
+    const isJson = req.is('application/json') || (req.headers.accept && req.headers.accept.includes('application/json'));
+    if (isJson) return res.status(200).json({ data: result });
+    return res.redirect('/moderator/event/all');
   } catch (err) {
     console.log("Error, updateChosenEvent:", err);
     if (err instanceof Errors) res.status(err.code).json(err);

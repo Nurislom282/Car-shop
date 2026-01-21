@@ -5,6 +5,7 @@ import uploader from "./libs/utils/uploader";
 import orderController from "./controllers/order.controller";
 import carController from "./controllers/car.controller";
 import brandController from "./controllers/brand.controller";
+import eventController from "./controllers/event.controller";
 
 /** Member **/
 router.get("/member/shop", membersController.getShop);
@@ -33,8 +34,6 @@ router.get("/member/top-users", membersController.getTopUsers);
 router.get("/car/all", carController.getCars);
 router.get("/car/discounted", carController.getDiscountedCars);
 router.get("/car/top-viewed", carController.getTopViewedCars);
-
-/** Brand **/
 router.get("/car/brand/:brandId", carController.getCarsByBrand);
 router.get("/car/brands", carController.getCarsByBrands);
 
@@ -43,7 +42,20 @@ router.get(
   membersController.retrieveAuth,
   carController.getCar
 );
+
+/** Brand **/
+router.get("/brand/all", brandController.getAllBrands);
 router.get("/brand/top", brandController.getTopBrands);
+
+/** Event **/
+router.get("/event/all", eventController.getEvents);
+router.get(
+  "/event/:id",
+  membersController.retrieveAuth,
+  eventController.getEvent
+);
+
+
 
 /** Order **/
 router.post(

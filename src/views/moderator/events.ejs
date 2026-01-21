@@ -744,9 +744,9 @@
                 });
             }
 
-            // Status change handler
+                // Status change handler — send AJAX to persist status
             document.querySelectorAll('.status-select-e').forEach(select => {
-                select.addEventListener('change', function () {
+                select.addEventListener('change', async function () {
                     anime({
                         targets: this,
                         scale: [1, 1.1, 1],
@@ -754,10 +754,27 @@
                         easing: 'easeOutElastic(1, .6)'
                     });
 
-                    // Here you would typically send an AJAX request to update the status
                     const eventId = this.id;
                     const newStatus = this.value;
-                    console.log(`Event ${eventId} status changed to ${newStatus}`);
+
+                    try {
+                        const resp = await fetch(`/moderator/event/${eventId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ eventStatus: newStatus })
+                        });
+
+                        if (!resp.ok) {
+                            throw new Error(`Server returned ${resp.status}`);
+                        }
+
+                        // optional: show a small toast/animation to confirm
+                        console.log(`Event ${eventId} status updated to ${newStatus}`);
+                    } catch (err) {
+                        console.error('Failed to update event status', err);
+                        alert('Failed to update status. Please try again.');
+                    }
                 });
             });
 

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { eventType } from "../libs/enums/event.enum";
+import { eventType, eventStatus } from "../libs/enums/event.enum";
 
 const eventSchema = new Schema(
     {
@@ -29,6 +29,11 @@ const eventSchema = new Schema(
         eventViews: {
             type: Number,
             default: 0,
+        },
+        eventStatus: {
+            type: String,
+            enum: Object.values(eventStatus),
+            default: eventStatus.PROCESS,
         },
     }, { timestamps: true } //updatedAt createdAt
 );

@@ -1,11 +1,12 @@
-import { eventType } from "../enums/event.enum";
+import { eventType, eventStatus } from "../enums/event.enum";
 
 export interface Event {
     _id: string;
     memberId?: string
     eventTitle: string;
     eventDesc: string;
-    eventImage?: string;
+    eventImage?: string[];
+    eventStatus?: eventStatus;
     eventDate: Date;
     createdAt: Date;
     updatedAt: Date;
@@ -22,7 +23,8 @@ export interface EventUpdateInput {
     _id: string;
     eventTitle?: string;
     eventDesc?: string;
-    eventImage?: string;
+    eventImage?: string[];
+    eventStatus?: eventStatus;
     eventDate?: Date;
 }
 

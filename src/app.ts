@@ -6,6 +6,8 @@ import routerAdmin from "./router-admin";
 import morgan from "morgan";
 import { MORGAN_FORMAT } from "./libs/config";
 import cookieParser from "cookie-parser";
+import { Server as SocketIOServer } from "socket.io";
+import http from "http";
 
 import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
@@ -22,8 +24,8 @@ const store = new MongoDBStore({
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 // Serve uploads at both /uploads and /admin/uploads to avoid broken relative paths
-app.use("/uploads", express.static("./uploads"));
-app.use("/admin/uploads", express.static("./uploads"));
+app.use("/", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
@@ -61,4 +63,23 @@ app.use("/admin", routerAdmin); // SSR: EJS
 app.use("/moderator", routerModer); //SSR: EJS
 app.use("/", router); // SPA: REACT (REST API)
 
-export default app;
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: true,
+    credentials: true,
+  }
+})
+
+let summaryClient = 0;
+io.on("connection", (socket) => {
+  summaryClient++;
+  console.log(`Connection & total [${summaryClient}]`);
+
+  socket.on("disconnect", () => {
+    summaryClient--;
+    console.log(`Disconnect & total [${summaryClient}]`);
+  })
+})
+
+export default server;

@@ -55,6 +55,24 @@ brandController.getBrand = async (req: Request, res: Response) => {
     }
 };
 
+brandController.getAllBrands = async (req: Request, res: Response) => {
+    try {
+        // Disable caching for API responses to ensure fresh data
+        res.set({
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+        
+        const brands = await BrandModel.find().sort({ BrandName: 1 }).exec();
+        return res.status(HttpCode.OK).json({ data: brands });
+    } catch (err) {
+        console.error('Error, getAllBrands:', err);
+        if (err instanceof Errors) return res.status(err.code).json(err);
+        return res.status(Errors.standart.code).json(Errors.standart);
+    }
+};
+
 brandController.deleteBrand = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;

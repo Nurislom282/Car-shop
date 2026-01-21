@@ -6,6 +6,7 @@ import { AdminRequest, ExtendedRequest } from "../libs/types/member";
 import { CarType } from "../libs/enums/car.enum";
 import CarService from "../models/Car.service";
 import BrandModel from "../schema/CarBrand.model";
+import mongoose from "mongoose";
 
 const carService = new CarService();
 const carController: T = {};
@@ -14,7 +15,20 @@ const carController: T = {};
 carController.getCars = async (req: Request, res: Response) => {
   try {
     console.log("getCars");
-    let { page, limit, order, carType, search } = req.query;
+    let { page, limit, order, carType, carCollection, collection, search } = req.query;
+    
+    // Handle different ways of specifying car type (carType, carCollection, or collection)
+    let finalCarType = carType as CarType;
+    if (!finalCarType && (carCollection || collection)) {
+      // Convert to uppercase to match enum
+      const typeString = String(carCollection || collection).toUpperCase();
+      // Validate if it's a valid CarType
+      const validTypes = Object.values(CarType) as string[];
+      if (validTypes.includes(typeString)) {
+        finalCarType = typeString as CarType;
+      }
+    }
+    
     // Set defaults if not provided or invalid
     const pageNum = Number(page);
     const limitNum = Number(limit);
@@ -22,7 +36,7 @@ carController.getCars = async (req: Request, res: Response) => {
       order: order ? String(order) : "_id", // default sort by _id
       page: !isNaN(pageNum) && pageNum > 0 ? pageNum : 1,
       limit: !isNaN(limitNum) && limitNum > 0 ? limitNum : 10,
-      carType: carType ? (carType as CarType) : undefined,
+      carType: finalCarType,
       search: search ? String(search) : undefined,
     };
     console.log(inquiry);
@@ -166,11 +180,22 @@ carController.getTopViewedCars = async (req: Request, res: Response) => {
 
 carController.getCarsByBrand = async (req: Request, res: Response) => {
   try {
-    const brandId = req.params.brandId;
-    // basic ObjectId format validation to avoid cast errors
-    if (!/^[a-fA-F0-9]{24}$/.test(String(brandId))) {
-      return res.status(HttpCode.BAD_REQUEST).json({ message: 'Invalid brandId format' });
+    let brandId = req.params.brandId;
+    
+    // Remove any leading colon if accidentally included in URL
+    if (brandId.startsWith(':')) {
+      brandId = brandId.substring(1);
     }
+    
+    // Validate ObjectId format using mongoose's built-in validation
+    if (!mongoose.Types.ObjectId.isValid(brandId)) {
+      return res.status(HttpCode.BAD_REQUEST).json({ 
+        message: 'Invalid brandId format. BrandId must be a valid MongoDB ObjectId (24 hexadecimal characters).',
+        received: brandId,
+        length: brandId.length
+      });
+    }
+    
     const { page, limit, order, carType, search } = req.query;
     const inquiry: CarInquiry = {
       order: order ? String(order) : "_id",

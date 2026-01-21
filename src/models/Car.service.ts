@@ -4,7 +4,7 @@ import { shapeIntoMongooseObjectId } from "../libs/config";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import { Car, CarInput, CarInquiry, CarUpdateInput } from "../libs/types/car";
 import CarModel from "../schema/Car.model";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import ViewService from "./View.service";
 import { ViewInput } from "../libs/types/view";
 import { ViewGroup } from "../libs/enums/view.enum";
@@ -82,7 +82,7 @@ class CarService {
     }
 
     public async getCar(
-        memberId: ObjectId | null,
+        memberId: Types.ObjectId | null,
         id: string
     ): Promise<Car> {
         const carId = shapeIntoMongooseObjectId(id);
