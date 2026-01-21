@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { OrderStatus } from "../enums/order.enum";
 import { emitKeypressEvents } from "readline";
-import { Product } from "./product";
+import { Car } from "./car";
 
 export interface OrderItem {
   _id: Types.ObjectId;
@@ -24,7 +24,7 @@ export interface Order {
 
   /** from agrigations **/
   orderItems: OrderItem[];
-  productData: Product[];
+  productData: Car[];
 }
 
 export interface OrderItemInput {
